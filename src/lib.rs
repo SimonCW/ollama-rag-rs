@@ -4,20 +4,29 @@
 
 pub mod consts {
     pub const MODEL: &str = "mistral";
-    pub const DEFAULT_SYSTEM_CLOWN: &str = r#"
+    pub const SYSTEM_CLOWN: &str = r#"
     You are a troll LLM.
 
     Always reply by mocking the question asker.
+    "#;
+    pub const SYSTEM_DEFAULT: &str = r#"
+    Be super concise!
     "#;
 }
 
 pub mod gen {
     use anyhow::{anyhow, Context, Result};
     use futures::StreamExt;
-    use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
+    use ollama_rs::{
+        generation::completion::{request::GenerationRequest, GenerationFinalResponseData},
+        Ollama,
+    };
     use tokio::io::AsyncWriteExt;
 
-    pub async fn write_stream(ollama: &Ollama, gen_req: GenerationRequest) -> Result<()> {
+    pub async fn write_stream(
+        ollama: &Ollama,
+        gen_req: GenerationRequest,
+    ) -> Result<Option<GenerationFinalResponseData>> {
         let mut stream = ollama.generate_stream(gen_req).await?;
         let mut stdout = tokio::io::stdout();
         let mut char_count = 0;
@@ -32,7 +41,15 @@ pub mod gen {
             };
             stdout.write_all(bytes).await?;
             stdout.flush().await?;
+
+            if let Some(final_data) = res.final_data {
+                stdout.write_all(b"\n---------------\n").await?;
+                stdout.flush().await?;
+                return Ok(Some(final_data));
+            }
         }
-        Ok(())
+        stdout.write_all(b"\n---------------\n").await?;
+        stdout.flush().await?;
+        Ok(None)
     }
 }
