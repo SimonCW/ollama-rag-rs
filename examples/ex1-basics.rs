@@ -1,7 +1,7 @@
 use std::io::stdout;
 
 use futures::StreamExt;
-use rag_rs::consts::{DEFAULT_SYSTEM_CLOWN, MODEL};
+use rag_rs::consts::{MODEL, SYSTEM_CLOWN};
 use rag_rs::gen::write_stream;
 
 use anyhow::{anyhow, Context, Result};
@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
 
     let prompt = "What is the best programming language? (Be concise)".to_string();
 
-    let gen_req = GenerationRequest::new(model, prompt).system(DEFAULT_SYSTEM_CLOWN.to_string());
+    let gen_req = GenerationRequest::new(model, prompt).system(SYSTEM_CLOWN.to_string());
     println!("----> Request generated");
 
     // Non-streaming
