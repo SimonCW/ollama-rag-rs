@@ -2,3 +2,7 @@
 
 # I'm keeping local logs here
 /logs
+
+# For temp files, e.g. created embeddings
+.*
+!.gitignore
