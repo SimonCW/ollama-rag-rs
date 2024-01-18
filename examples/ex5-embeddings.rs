@@ -2,9 +2,6 @@ use std::fs;
 use std::io::{stdin, stdout};
 use std::path::Path;
 
-use std::fs::File;
-use std::io::Write;
-
 use futures::StreamExt;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
 use ollama_rs::generation::chat::{ChatMessage, MessageRole};
@@ -69,9 +66,9 @@ fn write_vec_to_json(path: &Path, vec: &Vec<f64>) -> Result<()> {
     // Serialize the vector into a JSON string
     let serialized = serde_json::to_string(vec)?;
     // Open a file in write mode
-    let mut file = File::create(path)?;
+    let mut file = std::fs::File::create(path)?;
     // Write the JSON string to the file
-    file.write_all(serialized.as_bytes())?;
+    std::io::Write::write_all(&mut file, serialized.as_bytes())?;
     Ok(())
 }
 
