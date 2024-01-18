@@ -8,6 +8,7 @@ use ollama_rs::generation::chat::{ChatMessage, MessageRole};
 use ollama_rs::generation::completion::GenerationContext;
 use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
 use rag_rs::gen::write_stream;
+use rag_rs::utils::ensure_dir;
 
 use anyhow::{anyhow, Context, Result};
 use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
@@ -72,17 +73,6 @@ fn write_vec_to_json(path: &Path, vec: &Vec<f64>) -> Result<()> {
     Ok(())
 }
 
-/// Check if a path exists and is a directory, create the directory otherwise.
-fn ensure_dir(path: &Path) -> Result<()> {
-    if !path.exists() || !path.is_dir() {
-        fs::create_dir_all(path)?;
-        println!("Directory created: {:?}", path);
-    } else {
-        println!("Path already exists and is a directory.");
-    }
-
-    Ok(())
-}
 #[cfg(test)]
 mod tests {
     use super::*;

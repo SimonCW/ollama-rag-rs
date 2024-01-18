@@ -53,3 +53,20 @@ pub mod gen {
         Ok(None)
     }
 }
+
+pub mod utils {
+    use anyhow::Result;
+    use std::fs;
+    use std::path::Path;
+
+    /// Check if a path exists and is a directory, create the directory otherwise.
+    pub fn ensure_dir(path: &Path) -> Result<()> {
+        if !path.exists() || !path.is_dir() {
+            fs::create_dir_all(path)?;
+            println!("Directory created: {}", path.display());
+        } else {
+            println!("Path already exists and is a directory.");
+        }
+        Ok(())
+    }
+}
