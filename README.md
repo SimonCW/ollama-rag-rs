@@ -1,6 +1,7 @@
 # Retrieval Augmented Generation with Ollama in Rust
 
-## Commands
+
+## Useful Commands
 
 Start Ollama in the background and log outputs.
 ```Bash
