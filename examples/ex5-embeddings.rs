@@ -25,9 +25,6 @@ async fn main() -> Result<()> {
     let mut msg_thread: Vec<ChatMessage> = vec![system_msg];
 
     let documents_path = Path::new(DOCUMENTS_PATH);
-    let embeddings_path = Path::new(DOCUMENTS_PATH);
-    assert!(documents_path.is_dir());
-    assert!(embeddings_path.is_dir());
     create_embeddings(&ollama, documents_path, embeddings_path);
     //
     // loop {
@@ -45,6 +42,9 @@ async fn main() -> Result<()> {
     //     }
     // }
     // println!("{msg_thread:#?}");
+    let embeddings_path = Path::new(EMBEDDINGS_PATH);
+    ensure_dir(documents_path);
+    ensure_dir(embeddings_path);
     Ok(())
 }
 
@@ -104,6 +104,14 @@ pub async fn write_chat(
             return Ok(Some(assistant_msg));
         }
         // What if final result never comes, then I'm stuck in endless loop?
+fn ensure_dir(path: &Path) -> Result<()> {
+    // Check if the path exists and is a directory
+    if !path.exists() || !path.is_dir() {
+        // Create the directory if it doesn't exist or isn't a directory
+        fs::create_dir_all(path)?;
+        println!("Directory created: {:?}", path);
+    } else {
+        println!("Path already exists and is a directory.");
     }
 
     // new line
