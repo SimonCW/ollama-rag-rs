@@ -28,11 +28,12 @@ async fn main() -> Result<()> {
     let embeddings_path = Path::new(EMBEDDINGS_PATH);
     ensure_dir(documents_path);
     ensure_dir(embeddings_path);
-    create_embeddings(&ollama, documents_path, embeddings_path).await?;
+
+    write_embeddings(&ollama, documents_path, embeddings_path).await?;
     Ok(())
 }
 
-pub async fn create_embeddings(
+pub async fn write_embeddings(
     ollama: &Ollama,
     input_path: &Path,
     output_path: &Path,
