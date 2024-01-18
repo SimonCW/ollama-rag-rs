@@ -2,6 +2,9 @@ use std::fs;
 use std::io::{stdin, stdout};
 use std::path::Path;
 
+use std::fs::File;
+use std::io::Write;
+
 use futures::StreamExt;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
 use ollama_rs::generation::chat::{ChatMessage, MessageRole};
@@ -25,26 +28,10 @@ async fn main() -> Result<()> {
     let mut msg_thread: Vec<ChatMessage> = vec![system_msg];
 
     let documents_path = Path::new(DOCUMENTS_PATH);
-    create_embeddings(&ollama, documents_path, embeddings_path);
-    //
-    // loop {
-    //     let mut user_msg = String::new();
-    //     println!(">> Awaiting your message");
-    //     stdin().read_line(&mut user_msg);
-    //     let user_msg = ChatMessage::new(MessageRole::User, user_msg.to_string());
-    //     msg_thread.push(user_msg);
-    //     // Clone really necessary?
-    //     let req = ChatMessageRequest::new(MODEL.to_string(), msg_thread.clone());
-    //     println!("----Assistant----");
-    //     let assistant_msg = write_chat(&ollama, req).await?; // could be a union of response and final object.
-    //     if let Some(assistant_msg) = assistant_msg {
-    //         msg_thread.push(assistant_msg)
-    //     }
-    // }
-    // println!("{msg_thread:#?}");
     let embeddings_path = Path::new(EMBEDDINGS_PATH);
     ensure_dir(documents_path);
     ensure_dir(embeddings_path);
+    create_embeddings(&ollama, documents_path, embeddings_path).await?;
     Ok(())
 }
 
@@ -60,50 +47,34 @@ pub async fn create_embeddings(
             println!("Found file: {}", entry.path().display());
             // Of course the reality is more tricky! E.g., what if the file is super big?
             let content = fs::read_to_string(entry.path())?;
-            println!("File: \n {content}");
-            let emb = ollama
+            let embeddings = ollama
                 .generate_embeddings(MODEL.to_string(), content, None)
-                .await?;
+                .await?
+                .embeddings;
+            let stem = entry
+                .path()
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .expect("Failed to extract file stem");
+            let file_name = format!("{stem}_embeddings.json",);
+            let output_path = output_path.join(file_name);
+            println!("Writing embeddings to {}", output_path.display());
+            write_vec_to_json(&output_path, &embeddings);
         }
     }
     Ok(())
 }
 
-pub async fn write_chat(
-    ollama: &Ollama,
-    chat_req: ChatMessageRequest,
-) -> Result<Option<ChatMessage>> {
-    let mut stream = ollama.send_chat_messages_stream(chat_req).await?;
-    let mut stdout = tokio::io::stdout();
-    let mut char_count = 0;
-    let mut msg_stream: Vec<String> = Vec::new();
+fn write_vec_to_json(path: &Path, vec: &Vec<f64>) -> Result<()> {
+    // Serialize the vector into a JSON string
+    let serialized = serde_json::to_string(vec)?;
+    // Open a file in write mode
+    let mut file = File::create(path)?;
+    // Write the JSON string to the file
+    file.write_all(serialized.as_bytes())?;
+    Ok(())
+}
 
-    while let Some(res) = stream.next().await {
-        let res = res.map_err(|e| anyhow!("stream.next error: {:#?}", e))?;
-
-        if let Some(msg) = res.message {
-            let msg_content = msg.content;
-            // Poor man's wrapping
-            char_count += msg_content.len();
-            if char_count > 80 {
-                stdout.write_all(b"\n").await?;
-                char_count = 0;
-            }
-            // Write output
-            stdout.write_all(msg_content.as_bytes()).await?;
-            stdout.flush().await?;
-            msg_stream.push(msg_content);
-        }
-
-        if let Some(_final_res) = res.final_data {
-            stdout.write_all(b"\n").await?;
-            stdout.flush().await?;
-
-            let assistant_msg = msg_stream.join("");
-            let assistant_msg = ChatMessage::new(MessageRole::Assistant, assistant_msg);
-            return Ok(Some(assistant_msg));
-        }
-        // What if final result never comes, then I'm stuck in endless loop?
 fn ensure_dir(path: &Path) -> Result<()> {
     // Check if the path exists and is a directory
     if !path.exists() || !path.is_dir() {
@@ -114,13 +85,8 @@ fn ensure_dir(path: &Path) -> Result<()> {
         println!("Path already exists and is a directory.");
     }
 
-    // new line
-    stdout.write_all(b"\n").await?;
-    stdout.flush().await?;
-
-    Ok(None)
+    Ok(())
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
