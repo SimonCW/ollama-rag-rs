@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+/// Walk a directory and create embeddings for each document
 pub async fn write_embeddings(
     ollama: &Ollama,
     input_path: &Path,
@@ -41,6 +42,7 @@ pub async fn write_embeddings(
     let dir = WalkDir::new(input_path);
     for entry in dir {
         let entry = entry.context("Should be able to read contents of directory")?;
+        // TODO: Should probably check whethter it is a text file
         if entry.file_type().is_file() {
             println!("Found file: {}", entry.path().display());
             // Of course the reality is more tricky! E.g., what if the file is super big?
@@ -64,19 +66,15 @@ pub async fn write_embeddings(
 }
 
 fn write_vec_to_json(path: &Path, vec: &Vec<f64>) -> Result<()> {
-    // Serialize the vector into a JSON string
     let serialized = serde_json::to_string(vec)?;
-    // Open a file in write mode
     let mut file = std::fs::File::create(path)?;
-    // Write the JSON string to the file
     std::io::Write::write_all(&mut file, serialized.as_bytes())?;
     Ok(())
 }
 
+/// Check if a path exists and is a directory, create the directory otherwise.
 fn ensure_dir(path: &Path) -> Result<()> {
-    // Check if the path exists and is a directory
     if !path.exists() || !path.is_dir() {
-        // Create the directory if it doesn't exist or isn't a directory
         fs::create_dir_all(path)?;
         println!("Directory created: {:?}", path);
     } else {
