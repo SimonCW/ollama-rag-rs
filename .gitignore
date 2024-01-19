@@ -6,3 +6,6 @@
 # For temp files, e.g. created embeddings
 .*
 !.gitignore
+
+# For fastembed
+local_cache
