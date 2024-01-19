@@ -9,6 +9,7 @@ Just me for now, Simon Weiß.
 ## Glossary
 * RAG = Retrieval Augmented Generation
 * LLM = Large Language Model
+* HF = HuggingFace
 
 ## Overview Idea
 
@@ -23,7 +24,8 @@ tbd
 ### Goals
 
 * Showcase capability to build LLM-RAG application on custom data with local OSS model (flexibility to change models, even OpenAI API)
-* Show that RAG applications are more than just LLM on top of vector search. For the problem domain additional filtering, search, ranking might be necessary (https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves)
+* Show that RAG applications are more than just LLM on top of vector search. For the problem domain additional filtering, search, ranking might be necessary ([paper with nice graphic](https://arxiv.org/abs/2312.10997v1
+), [hn comments](https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves))
 * Showcase usefulness of Rust to reduce runtime errors and high performance (And it's not that hard!)
 * Gain experience with a specific vector database
 
@@ -50,6 +52,7 @@ tbd
 ### Components
 
 * Ingestion pipeline to chunk and embed documents into vector db.
+* Vector db, probably pgvector
 * LLM abstraction, i.e., Ollama to be able to use different LLMs without much hassle
 * CLI Application / Backend in Rust that takes plain user prompt, gets relevant documents from vector db, talks to Ollama LLM and returns assistant answer (LLM Output)
 
@@ -66,6 +69,41 @@ tbd
 tbd
 
 ## Open Questions
+
+### How to embed documents and prompt locally?
+
+#### Model
+
+* Sbert is probably a good way to start, see [this X post](https://x.com/cwolferesearch/status/1747689404062126246?s=20)
+* But there are better models, see [hf leaderboard](tbd)
+
+#### Library 
+
+**Python:**
+
+* The best option seems to be the [sentence transformers library](https://www.sbert.net/index.html) which is built on top of HF transformers and pytorch
+    * Supports fine-tuning embedding models which is quite important if there is specific jargon, acronyms, etc
+
+**Rust:**
+* I need a way to embed the prompt in the Rust application
+* Easiest would be Ollama but it doesn't support good embedding models yet ([GH issue for enhancement](https://github.com/jmorganca/ollama/issues/327))
+
+### Which Vector DB? 
+
+#### Resources
+
+* https://news.ycombinator.com/item?id=36943318
+* https://ann-benchmarks.com/glove-100-angular_10_angular.html
+* https://docs.google.com/spreadsheets/d/1oAeF4Q7ILxxfInGJ8vTsBck3-2U9VV8idDf3hJOozNw/edit?pli=1#gid=0
+* https://www.sicara.fr/blog-technique/how-to-choose-your-vector-database-in-2023
+* https://maven.com/blog/embeddings
+
+#### Feeling
+
+* For smaller projects (<100 MM Vectors): PGVector. 
+* For projects with high customization needs (additional search capabilities): OpenSearch / ElasticSearch
+* If you need low latency, high throughput: Specialized VectorDB: My favorite would be Qdrant
+
 
 
 
