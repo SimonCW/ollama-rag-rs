@@ -70,12 +70,14 @@ tbd
 
 ## Open Questions
 
+### Which use-case for the Demonstrator?
+
 ### How to embed documents and prompt locally?
 
 #### Model
 
 * Sbert is probably a good way to start, see [this X post](https://x.com/cwolferesearch/status/1747689404062126246?s=20)
-* But there are better models, see [hf leaderboard](tbd)
+* But there are better models, see [hf leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
 
 #### Library 
 
@@ -87,6 +89,13 @@ tbd
 **Rust:**
 * I need a way to embed the prompt in the Rust application
 * Easiest would be Ollama but it doesn't support good embedding models yet ([GH issue for enhancement](https://github.com/jmorganca/ollama/issues/327))
+* Via ONNX: https://github.com/Anush008/fastembed-rs
+* Via Candle: https://github.com/huggingface/text-embeddings-inference
+
+**Both via ONNX:**
+* Probably quite a bit of work but it might be best to create embeddings in Python pipeline via the sentence transformers library and then export the model to ONNX and use that in the Rust App
+* But then I'd have to distribute the ONNX runtime with the App .... Probably, for real deployment it would be best to go "full Rust" and even get rid of the Ollama dependency and just use Candle or Burn
+
 
 ### Which Vector DB? 
 
