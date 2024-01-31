@@ -10,6 +10,8 @@ unsafe_code = "forbid"
 unused = "allow"
 
 [dependencies]
+# I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
+tokenizers = { version = "0.15.1", features = ["http"] }
 anyhow = "1.0.79"
 ollama-rs = { version = "0.1", features = ["stream"] }
 tokio = { version = "1", features = ["full"] }
