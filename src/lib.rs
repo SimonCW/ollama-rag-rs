@@ -65,7 +65,7 @@ pub mod utils {
             fs::create_dir_all(path)?;
             println!("Directory created: {}", path.display());
         } else {
-            println!("Path already exists and is a directory.");
+            println!("{} already exists and is a directory.", path.display());
         }
         Ok(())
     }
