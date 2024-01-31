@@ -8,7 +8,7 @@ use ollama_rs::generation::chat::{ChatMessage, MessageRole};
 use ollama_rs::generation::completion::GenerationContext;
 use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
 use rag_rs::gen::write_stream;
-use rag_rs::utils::ensure_dir;
+use rag_rs::utils::{ensure_dir, write_vec_to_json};
 
 use anyhow::{anyhow, Context, Result};
 use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
@@ -63,13 +63,6 @@ pub async fn write_embeddings(
             write_vec_to_json(&output_path, &embeddings);
         }
     }
-    Ok(())
-}
-
-fn write_vec_to_json(path: &Path, vec: &Vec<f64>) -> Result<()> {
-    let serialized = serde_json::to_string(vec)?;
-    let mut file = std::fs::File::create(path)?;
-    std::io::Write::write_all(&mut file, serialized.as_bytes())?;
     Ok(())
 }
 

@@ -56,6 +56,7 @@ pub mod gen {
 
 pub mod utils {
     use anyhow::Result;
+    use serde::Serialize;
     use std::fs;
     use std::path::Path;
 
@@ -67,6 +68,13 @@ pub mod utils {
         } else {
             println!("{} already exists and is a directory.", path.display());
         }
+        Ok(())
+    }
+
+    pub fn write_vec_to_json<T: Serialize>(path: &Path, vec: &Vec<T>) -> Result<()> {
+        let serialized = serde_json::to_string(vec)?;
+        let mut file = std::fs::File::create(path)?;
+        std::io::Write::write_all(&mut file, serialized.as_bytes())?;
         Ok(())
     }
 }
