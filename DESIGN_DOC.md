@@ -78,8 +78,13 @@ tbd
 
 * Sbert is probably a good way to start, see [this X post](https://x.com/cwolferesearch/status/1747689404062126246?s=20)
 * But there are better models, see [hf leaderboard](https://huggingface.co/spaces/mteb/leaderboard)
+* `multilingual-e5-large` seems to work well for German [reddit-1](https://www.reddit.com/r/LocalLLaMA/comments/18fsty1/comment/kcxj4bm/?utm_source=share&utm_medium=web2x&context=3), [reddit-2](https://www.reddit.com/r/LocalLLaMA/comments/17p18m9/rag_embeddings/)
+
+ 
 
 #### Library 
+
+I'll go with `fastembed-rs` for now. See notes below.
 
 **Python:**
 
@@ -90,7 +95,7 @@ tbd
 * I need a way to embed the prompt in the Rust application
 * Easiest would be Ollama but it doesn't support good embedding models yet ([GH issue for enhancement](https://github.com/jmorganca/ollama/issues/327))
 * Via ONNX: https://github.com/Anush008/fastembed-rs
-* Via Candle: https://github.com/huggingface/text-embeddings-inference
+* Via Candle: https://github.com/huggingface/text-embeddings-inference . This looks super nice and supports many models. However, it is meant to run as a separate service and doesn't have a client library in Rust. Also, its default mode is running it via the huggingface model hub and servers ...
 
 **Both via ONNX:**
 * Probably quite a bit of work but it might be best to create embeddings in Python pipeline via the sentence transformers library and then export the model to ONNX and use that in the Rust App
