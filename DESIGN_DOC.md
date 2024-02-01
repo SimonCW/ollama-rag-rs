@@ -103,6 +103,12 @@ I'll go with `fastembed-rs` for now. See notes below.
 
 
 ### Which Vector DB? 
+#### My initial Feeling
+
+* For smaller projects (<100 MM Vectors): PGVector. 
+* For projects with high customization needs (additional search capabilities): OpenSearch / ElasticSearch
+* If you need low latency, high throughput: Specialized VectorDB: My favorite would be Qdrant (pinecone if fully managed) but not chroma (who builds a DB in Python?!)
+
 
 #### Resources
 
@@ -111,16 +117,4 @@ I'll go with `fastembed-rs` for now. See notes below.
 * https://docs.google.com/spreadsheets/d/1oAeF4Q7ILxxfInGJ8vTsBck3-2U9VV8idDf3hJOozNw/edit?pli=1#gid=0
 * https://www.sicara.fr/blog-technique/how-to-choose-your-vector-database-in-2023
 * https://maven.com/blog/embeddings
-
-#### Feeling
-
-* For smaller projects (<100 MM Vectors): PGVector. 
-* For projects with high customization needs (additional search capabilities): OpenSearch / ElasticSearch
-* If you need low latency, high throughput: Specialized VectorDB: My favorite would be Qdrant
-
-
-
-
-
-
 
