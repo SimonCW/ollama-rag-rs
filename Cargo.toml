@@ -11,13 +11,13 @@ unused = "allow"
 
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
-tokenizers = { version = "0.15.1", features = ["http"] }
-anyhow = "1.0.79"
+tokenizers = { version = "0.15", features = ["http"] }
+anyhow = "1.0"
 ollama-rs = { version = "0.1", features = ["stream"] }
 tokio = { version = "1", features = ["full"] }
 futures = "0.3"
-walkdir = "2.4.0"
+walkdir = "2.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-fastembed = "2.0.1"
-text-splitter = { version = "0.6.0", features = ["tokenizers"] }
+fastembed = "2.0"
+text-splitter = { version = "0.6", features = ["tokenizers"] }
