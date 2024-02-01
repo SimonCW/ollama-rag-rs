@@ -34,5 +34,7 @@ pub fn main() -> Result<()> {
     println!("Writing embeddings to {}", output_path.display());
     write_vec_to_json(&output_path, &embeddings);
 
+    // TODO: save embeddings in DB
+
     Ok(())
 }
