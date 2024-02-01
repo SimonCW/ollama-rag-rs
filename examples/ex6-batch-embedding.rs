@@ -28,7 +28,7 @@ pub fn main() -> Result<()> {
         ..Default::default()
     })?;
 
-    let embeddings = model.embed(chunks, None)?;
+    let embeddings = model.passage_embed(chunks, None)?;
 
     let output_path = embeddings_path.join("rust_book_embeddings.json");
     println!("Writing embeddings to {}", output_path.display());
