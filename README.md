@@ -20,7 +20,12 @@ CREATE ROLE username WITH LOGIN PASSWORD 'password';
 ALTER ROLE username CREATEDB;
 ```
 
-TODO: Login with my user and create databse + table
+* Created DB and table via pgadmin4, TODO: do it via bash, init script, ...
+
+
+```bash
+brew install pgvector
+```
 
 ```bash
 brew services stop postgresql

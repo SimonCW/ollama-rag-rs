@@ -11,6 +11,7 @@ unused = "allow"
 
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
+pgvector = { version = "0.3", features = ["sqlx"] }
 tokenizers = { version = "0.15", features = ["http"] }
 anyhow = "1.0"
 ollama-rs = { version = "0.1", features = ["stream"] }
