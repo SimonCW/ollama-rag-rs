@@ -11,7 +11,6 @@ unused = "allow"
 
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
-pgvector = { version = "0.3", features = ["sqlx"] }
 tokenizers = { version = "0.15", features = ["http"] }
 anyhow = "1.0"
 ollama-rs = { version = "0.1", features = ["stream"] }
@@ -22,3 +21,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 fastembed = "2.0"
 text-splitter = { version = "0.6", features = ["tokenizers"] }
+sqlx = { version = "0.7", features = ["runtime-tokio", "postgres"] }
+pgvector = { version = "0.3", features = ["sqlx"] }
