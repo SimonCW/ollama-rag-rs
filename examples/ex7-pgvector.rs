@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
     let embeddings = model.passage_embed(chunks.clone(), None)?;
-    todo!("There is a database error in the following. Change to the sqlx query macro to check at compile time")
+    todo!("There is a database error in the following. Change to the sqlx query macro to check at compile time");
     for (chunk, embedding) in chunks.iter().zip(embeddings) {
         let embedding = Vector::from(embedding);
         sqlx::query("INSERT INTO rag_demo (chunk, embedding) VALUES ($1,$2)")
