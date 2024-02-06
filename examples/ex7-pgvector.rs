@@ -1,8 +1,10 @@
 use anyhow::{anyhow, Result};
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
+use dotenv::dotenv;
 use pgvector::Vector;
 use rag_rs::utils::{ensure_dir, write_vec_to_json};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres, Row};
+use std::env;
 use std::{any, fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
@@ -15,11 +17,13 @@ const PG_CONNECTION: &str = "postgres://simon.weiss@localhost:5432/rag";
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    dotenv().ok();
     let documents_path = Path::new(DOCUMENTS_PATH);
     ensure_dir(documents_path);
+    let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(PG_CONNECTION)
+        .connect(&db_url)
         .await?;
 
     init_db(&pool).await?;
