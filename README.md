@@ -38,5 +38,7 @@ downloaded as pdf from here: https://doc.rust-lang.org/book/print.html and
 converted to txt via:
 
 ```bash
+# brew install poppler
+
 pdftotext .data/2024-02-13_the_rust_book.pdf knowledge/2024-02-13_the_rust_book.txt
 ```
