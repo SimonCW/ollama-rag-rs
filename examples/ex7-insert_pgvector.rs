@@ -10,10 +10,8 @@ use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 
 const DOCUMENTS_PATH: &str = "./examples/.data/rust_book.txt";
-const EMBEDDINGS_PATH: &str = "./examples/.embeddings/";
 const TOKENIZEER_MODEL: &str = "bert-base-cased";
 const MAX_TOKENS: usize = 1000;
-const PG_CONNECTION: &str = "postgres://simon.weiss@localhost:5432/rag";
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 #[tokio::main]
