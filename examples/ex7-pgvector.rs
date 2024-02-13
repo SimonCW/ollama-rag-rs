@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions, ModelInfo};
 use pgvector::Vector;
@@ -35,14 +35,23 @@ async fn main() -> Result<()> {
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
     let embeddings = model.passage_embed(chunks.clone(), None)?;
-    todo!("There is a database error in the following. Change to the sqlx query macro to check at compile time");
     for (chunk, embedding) in chunks.iter().zip(embeddings) {
         let embedding = Vector::from(embedding);
+        /*
+        sqlx::query!(
+            "INSERT INTO rag_demo (chunk, embedding) VALUES ($1,$2)",
+            chunk,
+            embedding
+        )
+        .execute(&pool)
+        .await?
+        */
         sqlx::query("INSERT INTO rag_demo (chunk, embedding) VALUES ($1,$2)")
             .bind(chunk)
             .bind(embedding)
             .execute(&pool)
-            .await?;
+            .await
+            .with_context(|| format!("Failed for chunk: '{chunk}'"))?;
     }
 
     Ok(())
@@ -56,18 +65,23 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
 }
 
 pub async fn create_table(pool: &Pool<Postgres>, embedding_size: usize) -> Result<()> {
-    sqlx::query("CREATE EXTENSION IF NOT EXISTS vector")
+    sqlx::query!("CREATE EXTENSION IF NOT EXISTS vector")
         .execute(pool)
-        .await?;
-    sqlx::query("DROP TABLE IF EXISTS rag_demo")
+        .await
+        .context("Failed to create extension")?;
+    sqlx::query!("DROP TABLE IF EXISTS rag_demo")
         .execute(pool)
-        .await?;
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS rag_demo (id bigserial PRIMARY KEY, chunk text, embedding vector($1))",
-    )
-    .bind(embedding_size as i64)
-    .execute(pool)
-    .await?;
+        .await
+        .context("Failed to drop table")?;
+
+    // Unprepared query b/c I want to dynamically create the table based on embedding_size for now.
+    // This allows me to quickly switch embedding models. Since embedding_size is an int, risk of
+    // sql injection is very low
+    let create_table_query = format!("CREATE TABLE IF NOT EXISTS rag_demo (id bigserial PRIMARY KEY, chunk text, embedding vector({embedding_size}))");
+    sqlx::query(&create_table_query)
+        .execute(pool)
+        .await
+        .context("Failed to create table")?;
     Ok(())
 }
 
