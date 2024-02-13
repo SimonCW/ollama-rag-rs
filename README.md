@@ -33,9 +33,10 @@ brew services stop postgresql
 
 ## License Notice
 
-The Rust Book is licensed under MIT and Apache License 2.0. The Rust Book
-contents were downloaded via:
+The Rust Book is licensed under MIT and Apache License 2.0. The Rust Book was
+downloaded as pdf from here: https://doc.rust-lang.org/book/print.html and
+converted to txt via:
 
 ```bash
-pandoc -s -r html https://doc.rust-lang.org/book/print.html -o rust_book.txt
+pdftotext .data/2024-02-13_the_rust_book.pdf knowledge/2024-02-13_the_rust_book.txt
 ```

@@ -5,7 +5,7 @@ use std::{fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 
-const DOCUMENTS_PATH: &str = "./examples/documents/rust_book.txt";
+const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
 const EMBEDDINGS_PATH: &str = "./examples/.embeddings/";
 
 pub fn main() -> Result<()> {
