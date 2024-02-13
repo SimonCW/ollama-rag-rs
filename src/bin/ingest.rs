@@ -9,7 +9,7 @@ use std::{any, fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 
-const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
+const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
 const TOKENIZEER_MODEL: &str = "bert-base-cased";
 const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
         .max_connections(5)
         .connect(&db_url)
         .await?;
-    create_table(&pool, embedding_size).await?;
+    sqlx::migrate!().run(&pool).await?;
 
     let content = fs::read_to_string(documents_path)?;
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
@@ -50,27 +50,6 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
         .iter()
         .find(|info| info.model == model)
         .map(|info| info.dim)
-}
-
-pub async fn create_table(pool: &Pool<Postgres>, embedding_size: usize) -> Result<()> {
-    sqlx::query!("CREATE EXTENSION IF NOT EXISTS vector")
-        .execute(pool)
-        .await
-        .context("Failed to create extension")?;
-    sqlx::query!("DROP TABLE IF EXISTS rag_demo")
-        .execute(pool)
-        .await
-        .context("Failed to drop table")?;
-
-    // Unprepared query b/c I want to dynamically create the table based on embedding_size for now.
-    // This allows me to quickly switch embedding models. Since embedding_size is an int, risk of
-    // sql injection is very low
-    let create_table_query = format!("CREATE TABLE IF NOT EXISTS rag_demo (id bigserial PRIMARY KEY, chunk text, embedding vector({embedding_size}))");
-    sqlx::query(&create_table_query)
-        .execute(pool)
-        .await
-        .context("Failed to create table")?;
-    Ok(())
 }
 
 pub fn init_splitter() -> Result<TextSplitter<Tokenizer>> {
