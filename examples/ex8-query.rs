@@ -35,7 +35,10 @@ async fn main() -> Result<()> {
             id: row.get("id"),
             chunk: row.get("chunk"),
         };
-        println!("Neighbor:\n {:#?}\n", neighbor.chunk);
+        println!(
+            "Neighbor:\n {}\n--------------------------------------------------------------",
+            neighbor.chunk
+        );
     }
 
     Ok(())
