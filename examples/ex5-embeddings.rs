@@ -15,7 +15,7 @@ use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use walkdir::WalkDir;
 
-const DOCUMENTS_PATH: &str = "./examples/documents/";
+const DOCUMENTS_PATH: &str = "./examples/small_documents/";
 const EMBEDDINGS_PATH: &str = "./examples/.embeddings/";
 
 #[tokio::main]

@@ -9,7 +9,7 @@ use std::{any, fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 
-const DOCUMENTS_PATH: &str = "./examples/.data/rust_book.txt";
+const DOCUMENTS_PATH: &str = "./examples/documents/rust_book.txt";
 const TOKENIZEER_MODEL: &str = "bert-base-cased";
 const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
