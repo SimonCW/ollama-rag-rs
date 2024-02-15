@@ -1,20 +1,15 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use dotenv::dotenv;
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions, ModelInfo};
+use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
 use pgvector::Vector;
-use rag_rs::utils::{ensure_dir, write_vec_to_json};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres, Row};
+use rag_rs::consts::{DOCUMENTS_PATH, EMBEDDING_MODEL, MAX_TOKENS};
+use rag_rs::ingest::{init_model, init_splitter};
+use rag_rs::utils::ensure_dir;
+use sqlx::postgres::PgPoolOptions;
 use std::env;
-use std::{any, fs, path::Path};
-use text_splitter::TextSplitter;
-use tokenizers::tokenizer::Tokenizer;
-use tracing::{debug, error, info, info_span, instrument, span, warn};
+use std::{fs, path::Path};
+use tracing::{info, info_span};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
-
-const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
-const TOKENIZER_MODEL: &str = "bert-base-cased";
-const MAX_TOKENS: usize = 1000;
-const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 /* TODOs
 * ? Add more context to the DB? E.g. which page of the book.
@@ -66,22 +61,4 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
         .iter()
         .find(|info| info.model == model)
         .map(|info| info.dim)
-}
-
-#[instrument]
-pub fn init_splitter() -> Result<TextSplitter<Tokenizer>> {
-    let tokenizer =
-        Tokenizer::from_pretrained(TOKENIZER_MODEL, None).map_err(|e| anyhow!("{e:#?}"))?;
-    let splitter = TextSplitter::new(tokenizer).with_trim_chunks(true);
-    Ok(splitter)
-}
-
-#[instrument]
-pub fn init_model() -> Result<FlagEmbedding> {
-    let model: FlagEmbedding = FlagEmbedding::try_new(InitOptions {
-        model_name: EMBEDDING_MODEL,
-        show_download_message: true,
-        ..Default::default()
-    })?;
-    Ok(model)
 }

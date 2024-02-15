@@ -2,7 +2,16 @@
 #![warn(clippy::style)]
 #![allow(clippy::missing_errors_doc)]
 
+pub mod ingest;
+
 pub mod consts {
+    use fastembed::EmbeddingModel;
+
+    pub const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
+    pub const TOKENIZER_MODEL: &str = "bert-base-cased";
+    pub const MAX_TOKENS: usize = 1000;
+    pub const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
+
     pub const MODEL: &str = "mistral";
     pub const SYSTEM_CLOWN: &str = r#"
     You are a troll LLM.
@@ -15,7 +24,7 @@ pub mod consts {
 }
 
 pub mod gen {
-    use anyhow::{anyhow, Context, Result};
+    use anyhow::{anyhow, Result};
     use futures::StreamExt;
     use ollama_rs::{
         generation::completion::{request::GenerationRequest, GenerationFinalResponseData},
