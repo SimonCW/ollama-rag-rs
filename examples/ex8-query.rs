@@ -1,14 +1,10 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::Result;
 use dotenv::dotenv;
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions, ModelInfo};
+use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
 use futures::TryStreamExt;
 use pgvector::Vector;
-use rag_rs::utils::{ensure_dir, write_vec_to_json};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres, Row};
+use sqlx::{postgres::PgPoolOptions, Row};
 use std::env;
-use std::{any, fs, path::Path};
-use text_splitter::TextSplitter;
-use tokenizers::tokenizer::Tokenizer;
 
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 

@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
 use pgvector::Vector;
-use rag_rs::consts::{DOCUMENTS_PATH, EMBEDDING_MODEL, MAX_TOKENS};
+use rag_rs::consts::{DOCUMENTS_PATH, MAX_TOKENS};
 use rag_rs::ingest::{init_model, init_splitter};
 use rag_rs::utils::ensure_dir;
 use sqlx::postgres::PgPoolOptions;
@@ -25,10 +25,9 @@ async fn main() -> Result<()> {
     let span = info_span!("Main execution");
     let _enter = span.enter();
     let documents_path = Path::new(DOCUMENTS_PATH);
-    ensure_dir(documents_path);
+    let _ = ensure_dir(documents_path);
     let splitter = init_splitter()?;
     let model = init_model()?;
-    let embedding_size = get_embedding_size(EMBEDDING_MODEL).expect("Model info should be there");
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
     let pool = PgPoolOptions::new()
         .max_connections(5)
