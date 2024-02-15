@@ -14,6 +14,12 @@ const TOKENIZER_MODEL: &str = "bert-base-cased";
 const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
+/* TODOs
+* Queries as .sql files
+* Add minimial logging via the tracing crate
+* ? Add more context to the DB? E.g. which page of the book.
+*/
+
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
@@ -21,7 +27,7 @@ async fn main() -> Result<()> {
     ensure_dir(documents_path);
     let splitter = init_splitter()?;
     let model = init_model()?;
-    let embedding_size = get_embedding_size(EMBEDDING_MODEL).expect("Expect to find model info");
+    let embedding_size = get_embedding_size(EMBEDDING_MODEL).expect("Model info should be there");
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -29,6 +35,7 @@ async fn main() -> Result<()> {
         .await?;
     sqlx::migrate!().run(&pool).await?;
 
+    // Well ... this could be better ;)
     let content = fs::read_to_string(documents_path)?;
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
