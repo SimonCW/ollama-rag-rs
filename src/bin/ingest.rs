@@ -10,7 +10,7 @@ use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 
 const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
-const TOKENIZEER_MODEL: &str = "bert-base-cased";
+const TOKENIZER_MODEL: &str = "bert-base-cased";
 const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
@@ -54,7 +54,7 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
 
 pub fn init_splitter() -> Result<TextSplitter<Tokenizer>> {
     let tokenizer =
-        Tokenizer::from_pretrained(TOKENIZEER_MODEL, None).map_err(|e| anyhow!("{e:#?}"))?;
+        Tokenizer::from_pretrained(TOKENIZER_MODEL, None).map_err(|e| anyhow!("{e:#?}"))?;
     let splitter = TextSplitter::new(tokenizer).with_trim_chunks(true);
     Ok(splitter)
 }
