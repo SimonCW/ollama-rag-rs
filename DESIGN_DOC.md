@@ -37,10 +37,10 @@ tbd
 ## Milestones
 
 - [x] Get acquainted with Ollama
-- [] Select and get acquainted with vector db
-- [] Write script to ingest chunks / docs into vector db
+- [x] Select and get acquainted with vector db
+- [x] Write script to ingest chunks / docs into vector db
 - [] Find interesting use case / data
-- [] Ingest data into vector db (Python Script)
+- [] Ingest data into vector db
 - [] Build CLI chatbot
 
 ## Existing Solutions
