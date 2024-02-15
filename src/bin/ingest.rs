@@ -15,7 +15,6 @@ const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 /* TODOs
-* Queries as .sql files
 * Add minimial logging via the tracing crate
 * ? Add more context to the DB? E.g. which page of the book.
 */
@@ -33,6 +32,7 @@ async fn main() -> Result<()> {
         .max_connections(5)
         .connect(&db_url)
         .await?;
+    println!("Running migration");
     sqlx::migrate!().run(&pool).await?;
 
     // Well ... this could be better ;)
@@ -40,6 +40,7 @@ async fn main() -> Result<()> {
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
     let embeddings = model.passage_embed(chunks.clone(), None)?;
+    println!("Inserting embeddings");
     for (chunk, embedding) in chunks.iter().zip(embeddings) {
         let embedding = Vector::from(embedding);
         sqlx::query("INSERT INTO rippy (chunk, embedding) VALUES ($1,$2)")
@@ -49,6 +50,7 @@ async fn main() -> Result<()> {
             .await
             .with_context(|| format!("Failed for chunk: '{chunk}'"))?;
     }
+    println!("Finished inserting embeddings");
     Ok(())
 }
 
