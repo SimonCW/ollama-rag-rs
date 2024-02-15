@@ -31,8 +31,8 @@ async fn main() -> Result<()> {
             chunk: row.get("chunk"),
         };
         println!(
-            "Neighbor:\n {}\n--------------------------------------------------------------",
-            neighbor.chunk
+            "Neighbor {}:\n {}\n--------------------------------------------------------------",
+            neighbor.id, neighbor.chunk
         );
     }
 

@@ -1,4 +1,4 @@
-use anyhow::{Result};
+use anyhow::Result;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
 use rag_rs::utils::{ensure_dir, write_vec_to_json};
 use std::{fs, path::Path};
@@ -11,8 +11,8 @@ const EMBEDDINGS_PATH: &str = "./examples/.embeddings/";
 pub fn main() -> Result<()> {
     let documents_path = Path::new(DOCUMENTS_PATH);
     let embeddings_path = Path::new(EMBEDDINGS_PATH);
-    ensure_dir(documents_path);
-    ensure_dir(embeddings_path);
+    let _ = ensure_dir(documents_path);
+    let _ = ensure_dir(embeddings_path);
     // Splitting
     let tokenizer = Tokenizer::from_pretrained("bert-base-cased", None).unwrap();
     let max_tokens = 1000;
@@ -32,7 +32,7 @@ pub fn main() -> Result<()> {
 
     let output_path = embeddings_path.join("rust_book_embeddings.json");
     println!("Writing embeddings to {}", output_path.display());
-    write_vec_to_json(&output_path, &embeddings);
+    let _ = write_vec_to_json(&output_path, &embeddings);
 
     // TODO: save embeddings in DB
 

@@ -18,7 +18,7 @@ const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 async fn main() -> Result<()> {
     dotenv().ok();
     let documents_path = Path::new(DOCUMENTS_PATH);
-    ensure_dir(documents_path);
+    let _ = ensure_dir(documents_path);
     let splitter = init_splitter()?;
     let model = init_model()?;
     let embedding_size = get_embedding_size(EMBEDDING_MODEL).expect("Expect to find model info");

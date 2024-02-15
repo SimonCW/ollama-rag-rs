@@ -21,8 +21,8 @@ async fn main() -> Result<()> {
 
     let documents_path = Path::new(DOCUMENTS_PATH);
     let embeddings_path = Path::new(EMBEDDINGS_PATH);
-    ensure_dir(documents_path);
-    ensure_dir(embeddings_path);
+    let _ = ensure_dir(documents_path);
+    let _ = ensure_dir(embeddings_path);
 
     write_embeddings(&ollama, documents_path, embeddings_path).await?;
     Ok(())
@@ -54,7 +54,7 @@ pub async fn write_embeddings(
             let file_name = format!("{stem}_embeddings.json",);
             let output_path = output_path.join(file_name);
             println!("Writing embeddings to {}", output_path.display());
-            write_vec_to_json(&output_path, &embeddings);
+            let _ = write_vec_to_json(&output_path, &embeddings);
         }
     }
     Ok(())

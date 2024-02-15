@@ -1,12 +1,8 @@
-
-
-
 use rag_rs::consts::{MODEL, SYSTEM_CLOWN};
 use rag_rs::gen::write_stream;
 
-use anyhow::{Result};
+use anyhow::Result;
 use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
-
 
 #[tokio::main]
 async fn main() -> Result<()> {

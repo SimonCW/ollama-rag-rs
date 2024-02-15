@@ -1,4 +1,4 @@
-use std::io::{stdin};
+use std::io::stdin;
 
 use futures::StreamExt;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
@@ -6,10 +6,9 @@ use ollama_rs::generation::chat::{ChatMessage, MessageRole};
 
 use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
 
-
 use anyhow::{anyhow, Result};
-use ollama_rs::{Ollama};
-use tokio::io::{AsyncWriteExt};
+use ollama_rs::Ollama;
+use tokio::io::AsyncWriteExt;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -21,7 +20,7 @@ async fn main() -> Result<()> {
     loop {
         let mut user_msg = String::new();
         println!(">> Awaiting your message");
-        stdin().read_line(&mut user_msg);
+        let _ = stdin().read_line(&mut user_msg);
         let user_msg = ChatMessage::new(MessageRole::User, user_msg.to_string());
         msg_thread.push(user_msg);
         // Clone really necessary?
@@ -32,8 +31,6 @@ async fn main() -> Result<()> {
             msg_thread.push(assistant_msg)
         }
     }
-    println!("{msg_thread:#?}");
-    Ok(())
 }
 
 pub async fn write_chat(

@@ -1,13 +1,9 @@
-
-
-use futures::StreamExt;
 use ollama_rs::generation::completion::GenerationContext;
 use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
 use rag_rs::gen::write_stream;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
-
 
 #[tokio::main]
 async fn main() -> Result<()> {
