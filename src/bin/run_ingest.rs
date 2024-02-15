@@ -11,9 +11,7 @@ use std::{fs, path::Path};
 use tracing::{info, info_span};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
-/* TODOs
-* ? Add more context to the DB? E.g. which page of the book.
-*/
+// TODO: ? Add more context to the DB? E.g. which page of the book.
 
 #[tokio::main]
 async fn main() -> Result<()> {
