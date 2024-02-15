@@ -8,6 +8,8 @@ use std::env;
 use std::{any, fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
+use tracing::{debug, error, info, info_span, instrument, span, warn};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
 const TOKENIZER_MODEL: &str = "bert-base-cased";
@@ -15,13 +17,18 @@ const MAX_TOKENS: usize = 1000;
 const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 /* TODOs
-* Add minimial logging via the tracing crate
 * ? Add more context to the DB? E.g. which page of the book.
 */
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+    let span = info_span!("Main execution");
+    let _enter = span.enter();
     let documents_path = Path::new(DOCUMENTS_PATH);
     ensure_dir(documents_path);
     let splitter = init_splitter()?;
@@ -32,15 +39,15 @@ async fn main() -> Result<()> {
         .max_connections(5)
         .connect(&db_url)
         .await?;
-    println!("Running migration");
     sqlx::migrate!().run(&pool).await?;
 
     // Well ... this could be better ;)
     let content = fs::read_to_string(documents_path)?;
     let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
+    info!("Creating embeddings");
     let embeddings = model.passage_embed(chunks.clone(), None)?;
-    println!("Inserting embeddings");
+    info!("Inserting embeddings");
     for (chunk, embedding) in chunks.iter().zip(embeddings) {
         let embedding = Vector::from(embedding);
         sqlx::query("INSERT INTO rippy (chunk, embedding) VALUES ($1,$2)")
@@ -50,7 +57,7 @@ async fn main() -> Result<()> {
             .await
             .with_context(|| format!("Failed for chunk: '{chunk}'"))?;
     }
-    println!("Finished inserting embeddings");
+    info!("Finished inserting embeddings");
     Ok(())
 }
 
@@ -61,6 +68,7 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
         .map(|info| info.dim)
 }
 
+#[instrument]
 pub fn init_splitter() -> Result<TextSplitter<Tokenizer>> {
     let tokenizer =
         Tokenizer::from_pretrained(TOKENIZER_MODEL, None).map_err(|e| anyhow!("{e:#?}"))?;
@@ -68,6 +76,7 @@ pub fn init_splitter() -> Result<TextSplitter<Tokenizer>> {
     Ok(splitter)
 }
 
+#[instrument]
 pub fn init_model() -> Result<FlagEmbedding> {
     let model: FlagEmbedding = FlagEmbedding::try_new(InitOptions {
         model_name: EMBEDDING_MODEL,

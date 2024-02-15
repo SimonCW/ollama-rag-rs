@@ -24,6 +24,8 @@ text-splitter = { version = "0.6", features = ["tokenizers"] }
 sqlx = { version = "0.7", features = ["runtime-tokio", "postgres", "migrate"] }
 pgvector = { version = "0.3", features = ["sqlx"] }
 dotenv = "0.15.0"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [[bin]]
 name = "ingest"
