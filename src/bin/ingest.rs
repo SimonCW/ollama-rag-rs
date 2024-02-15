@@ -42,7 +42,7 @@ async fn main() -> Result<()> {
     let embeddings = model.passage_embed(chunks.clone(), None)?;
     for (chunk, embedding) in chunks.iter().zip(embeddings) {
         let embedding = Vector::from(embedding);
-        sqlx::query("INSERT INTO rag_demo (chunk, embedding) VALUES ($1,$2)")
+        sqlx::query("INSERT INTO rippy (chunk, embedding) VALUES ($1,$2)")
             .bind(chunk)
             .bind(embedding)
             .execute(&pool)
