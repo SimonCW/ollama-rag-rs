@@ -1,15 +1,15 @@
-use std::io::{stdin, stdout};
+use std::io::{stdin};
 
 use futures::StreamExt;
 use ollama_rs::generation::chat::request::ChatMessageRequest;
 use ollama_rs::generation::chat::{ChatMessage, MessageRole};
-use ollama_rs::generation::completion::GenerationContext;
-use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
-use rag_rs::gen::write_stream;
 
-use anyhow::{anyhow, Context, Result};
-use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
+
+
+use anyhow::{anyhow, Result};
+use ollama_rs::{Ollama};
+use tokio::io::{AsyncWriteExt};
 
 #[tokio::main]
 async fn main() -> Result<()> {

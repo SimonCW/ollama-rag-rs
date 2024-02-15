@@ -1,12 +1,12 @@
-use std::io::stdout;
 
-use futures::StreamExt;
+
+
 use rag_rs::consts::{MODEL, SYSTEM_CLOWN};
 use rag_rs::gen::write_stream;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Result};
 use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
-use tokio::io::AsyncWriteExt;
+
 
 #[tokio::main]
 async fn main() -> Result<()> {

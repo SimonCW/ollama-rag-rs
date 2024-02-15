@@ -12,7 +12,6 @@ const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 async fn main() -> Result<()> {
     dotenv().ok();
     let model = init_model()?;
-    let embedding_size = get_embedding_size(EMBEDDING_MODEL).expect("Expect to find model info");
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
     let pool = PgPoolOptions::new()
         .max_connections(5)

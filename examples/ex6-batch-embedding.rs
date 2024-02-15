@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result};
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
 use rag_rs::utils::{ensure_dir, write_vec_to_json};
 use std::{fs, path::Path};

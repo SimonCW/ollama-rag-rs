@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Context, Result};
 use dotenv::dotenv;
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions, ModelInfo};
+use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
 use pgvector::Vector;
 use rag_rs::utils::ensure_dir;
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use std::env;
-use std::{any, fs, path::Path};
+use std::{fs, path::Path};
 use text_splitter::TextSplitter;
 use tokenizers::tokenizer::Tokenizer;
 

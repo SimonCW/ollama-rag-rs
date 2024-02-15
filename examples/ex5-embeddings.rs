@@ -1,18 +1,14 @@
 use std::fs;
-use std::io::{stdin, stdout};
+
 use std::path::Path;
 
-use futures::StreamExt;
-use ollama_rs::generation::chat::request::ChatMessageRequest;
-use ollama_rs::generation::chat::{ChatMessage, MessageRole};
-use ollama_rs::generation::completion::GenerationContext;
-use rag_rs::consts::{MODEL, SYSTEM_DEFAULT};
-use rag_rs::gen::write_stream;
+use rag_rs::consts::MODEL;
+
 use rag_rs::utils::{ensure_dir, write_vec_to_json};
 
-use anyhow::{anyhow, Context, Result};
-use ollama_rs::{generation::completion::request::GenerationRequest, Ollama};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use anyhow::{Context, Result};
+use ollama_rs::Ollama;
+
 use walkdir::WalkDir;
 
 const DOCUMENTS_PATH: &str = "./examples/small_documents/";
@@ -22,8 +18,6 @@ const EMBEDDINGS_PATH: &str = "./examples/.embeddings/";
 async fn main() -> Result<()> {
     // localhost:1143
     let ollama = Ollama::default();
-    let system_msg = ChatMessage::new(MessageRole::System, SYSTEM_DEFAULT.to_string());
-    let mut msg_thread: Vec<ChatMessage> = vec![system_msg];
 
     let documents_path = Path::new(DOCUMENTS_PATH);
     let embeddings_path = Path::new(EMBEDDINGS_PATH);
