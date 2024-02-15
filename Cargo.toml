@@ -7,7 +7,6 @@ edition = "2021"
 
 [lints.rust]
 unsafe_code = "forbid"
-unused = "allow"
 
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
@@ -28,5 +27,5 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [[bin]]
-name = "ingest"
-path = "src/bin/ingest.rs"
+name = "run_ingest"
+path = "src/bin/run_ingest.rs"
