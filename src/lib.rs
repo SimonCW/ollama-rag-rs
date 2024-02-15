@@ -82,14 +82,18 @@ pub mod utils {
     use serde::Serialize;
     use std::fs;
     use std::path::Path;
+    use tracing::{info, instrument, warn};
 
     /// Check if a path exists and is a directory, create the directory otherwise.
+    #[instrument]
     pub fn ensure_dir(path: &Path) -> Result<()> {
-        if !path.exists() || !path.is_dir() {
+        if path.exists() && path.is_dir() {
+            info!("{} exists and is a directory", path.display());
+        } else if !path.exists() || !path.is_dir() {
             fs::create_dir_all(path)?;
-            println!("Directory created: {}", path.display());
+            info!("Directory created: {}", path.display());
         } else {
-            println!("{} already exists and is a directory.", path.display());
+            warn!("Something weird happening at {}.", path.display());
         }
         Ok(())
     }
