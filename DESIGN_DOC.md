@@ -27,11 +27,9 @@ tbd
 ### Goals
 
 - Showcase capability to build LLM-RAG application on custom data with local OSS
-  model (flexibility to change models, even OpenAI API)
-- Show that RAG applications are more than just LLM on top of vector search. For
-  the problem domain additional filtering, search, ranking might be necessary
-  ([paper with nice graphic](https://arxiv.org/abs/2312.10997v1),
-  [hn comments](https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves))
+  model (flexibility to change models)
+- Local first! This should be easily installable and runnable on a laptop. I
+  have a Mac so that's my primary target. We'll see about windows afterwards
 - Showcase usefulness of Rust to reduce runtime errors and high performance (And
   it's not that hard!)
 - Gain experience with a specific vector database
@@ -41,17 +39,20 @@ tbd
 - Fits-all use cases RAG application. Most RAG applications can be compared to
   search / recommendation problems: they need some use-case-specific tuning and
   logic
-- Everything in Rust. The ecosystem is lacking convenience libraries for many
-  tasks
+- Show that RAG applications are more than just LLM on top of vector search. For
+  the problem domain additional filtering, search, ranking might be necessary
+  ([paper with nice graphic](https://arxiv.org/abs/2312.10997v1),
+  [hn comments](https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves))
 
 ## Milestones
 
 - [x] Get acquainted with Ollama
 - [x] Select and get acquainted with vector db
 - [x] Write script to ingest chunks / docs into vector db
-- [] Find interesting use case / data
-- [] Ingest data into vector db
-- [] Build CLI chatbot
+- [ ] Find interesting use case / data
+- [x] Ingest data into vector db
+- [ ] Build CLI chatbot
+- [ ] Build UI
 
 ## Existing Solutions
 
@@ -134,6 +135,34 @@ I'll go with `fastembed-rs` for now. See notes below.
   Ollama dependency and just use Candle or Burn
 
 ### Which Vector DB?
+
+#### Update 2024-02-16
+
+To fulfill the "local first" goal, I maybe should build use faiss or annoy on
+disk or run sqlite with the
+[sqlite-vss extension](https://github.com/asg017/sqlite-vss?tab=readme-ov-file)
+or check out marqo.
+
+**lancedb**
+
+- looks promising, could be a real option and probably the better alternative to
+  sqlite-vss
+- https://github.com/lancedb/lancedb
+
+**Sqlite-vss:**
+
+- The author gives an honest overview:
+  https://observablehq.com/@asg017/introducing-sqlite-vss
+
+**Marqo**
+
+- Wants to be the all-in-one solution, not just the vectordb part
+- Seems to be built on top of vespa, onnx, sbert, etc, stiching together the
+  text splitting, embedding, etc work
+- The docker container is 4.7 GB! https://hub.docker.com/r/marqoai/marqo/tags.
+- Their whole communication seems quite suspicious
+- There are quite a few open Issues regarding compatibility problems with MacOs,
+  etc
 
 #### My initial Feeling
 
