@@ -7,7 +7,6 @@ edition = "2021"
 
 [lints.rust]
 unsafe_code = "forbid"
-unused = "allow"
 
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary

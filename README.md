@@ -8,10 +8,11 @@ Start Ollama in the background and log outputs.
 nohup ollama serve > ~/Repos/rag-rs/logs/ollama_serve.log 2>&1 &
 ```
 
-## Postgresql with Pgvector
+## Install Postgresql with Pgvector on MacOs
 
 ```bash
 brew install postgresql
+brew install pgadmin4
 brew services start postgresql
 psql postgres
 ```
@@ -20,8 +21,6 @@ psql postgres
 CREATE ROLE username WITH LOGIN PASSWORD 'password';
 ALTER ROLE username CREATEDB;
 ```
-
-- Created DB and table via pgadmin4, TODO: do it via bash, init script, ...
 
 ```bash
 brew install pgvector
