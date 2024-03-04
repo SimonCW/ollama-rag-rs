@@ -2,7 +2,7 @@
 #![warn(clippy::style)]
 #![allow(clippy::missing_errors_doc)]
 
-pub mod ingest;
+pub mod embed;
 
 pub mod consts {
     use fastembed::EmbeddingModel;

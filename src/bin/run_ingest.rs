@@ -3,7 +3,7 @@ use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
 use pgvector::Vector;
 use rag_rs::consts::{DOCUMENTS_PATH, MAX_TOKENS};
-use rag_rs::ingest::{init_model, init_splitter};
+use rag_rs::embed::{init_model, init_splitter};
 use rag_rs::utils::ensure_dir;
 use sqlx::postgres::PgPoolOptions;
 use std::env;
