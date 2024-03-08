@@ -84,7 +84,16 @@ tbd
 
 ## Open Questions
 
+### Which LLM framework
+
+I started with Ollama but I think I'll switch to llamafile at some point
+(https://simonwillison.net/2023/Nov/29/llamafile/).
+
+Wins for llamafile: No server, no Go, single file
+
 ### Which use-case for the Demonstrator?
+
+tbd
 
 ### How to embed documents and prompt locally?
 
