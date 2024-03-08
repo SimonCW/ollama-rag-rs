@@ -145,6 +145,13 @@ I'll go with `fastembed-rs` for now. See notes below.
 
 ### Which Vector DB?
 
+### Update 2024-03-08
+
+LanceDB is the way to go for this project ... I think ;). No seriously, it looks
+like LanceDB is what I've been looking for. Basically the Sqlite of vector
+databases. Also, it's also written in Rust. The only drawback is that the Rust
+SDK is quite experimental yet (they focus on the Python and JS SDKs first).
+
 #### Update 2024-02-16
 
 To fulfill the "local first" goal, I maybe should build use faiss or annoy on
