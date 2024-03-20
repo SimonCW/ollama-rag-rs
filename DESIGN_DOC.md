@@ -70,15 +70,7 @@ tbd
   documents from vector db, talks to Ollama LLM and returns assistant answer
   (LLM Output)
 
-## Alternative Solutions
-
-tbd
-
 ## Testability, Monitoring, and Alerting
-
-tbd
-
-## Cross-Team impact
 
 tbd
 

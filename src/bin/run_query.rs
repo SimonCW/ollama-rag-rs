@@ -11,7 +11,7 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Setup
+    // Setup;
     dotenv().ok();
     let model = init_model()?;
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
