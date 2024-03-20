@@ -26,21 +26,20 @@ tbd
 
 ### Goals
 
-- Showcase capability to build LLM-RAG application on custom data with local OSS
-  model (flexibility to change models)
 - Local first! This should be easily installable and runnable on a laptop. I
   have a Mac so that's my primary target. We'll see about windows afterwards
-- Showcase usefulness of Rust to reduce runtime errors and high performance (And
-  it's not that hard!)
-- Gain experience with a specific vector database
+- Evaluate Rust for Applications that are on the intersection of MacOS/Windows
+  Software and AI
+- Gain experience towards edge computing cases, e.g. can this run on a car or
+  factory robot?
+- Demonstrate capability to run privacy-first OSS models on own data
 
 ### Non-Goals
 
-- Fits-all use cases RAG application. Most RAG applications can be compared to
-  search / recommendation problems: they need some use-case-specific tuning and
-  logic
-- Show that RAG applications are more than just LLM on top of vector search. For
-  the problem domain additional filtering, search, ranking might be necessary
+- Production-ready software. Although, I'll explore some Rust libraries for
+  logging, testing, etc
+- Fits-all use cases RAG application. For each the problem domain additional
+  filtering, search, ranking might be necessary
   ([paper with nice graphic](https://arxiv.org/abs/2312.10997v1),
   [hn comments](https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves))
 
