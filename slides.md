@@ -1,6 +1,19 @@
+---
+theme: dracula
+# https://sli.dev/custom/highlighters.html
+highlighter: shiki
+# https://sli.dev/guide/drawing
+drawings:
+  persist: false
+# slide transition: https://sli.dev/guide/animations#slide-transitions
+transition: slide-left
+# enable MDC Syntax: https://sli.dev/guide/syntax#mdc-syntax
+mdc: true
+---
+
 # What?
 
-A all-OSS, all-local, easy-install, privacy-first local RAG application, e.g.
+An all-OSS, all-local, easy-install, privacy-first local RAG application, e.g.
 "Chat with your filesystem"
 
 ---
@@ -9,13 +22,13 @@ A all-OSS, all-local, easy-install, privacy-first local RAG application, e.g.
 
 ## Goals
 
-- Local first! This should be easily installable and runnable on a laptop. I
-  have a Mac so that's my primary target. We'll see about windows afterwards
-- Evaluate Rust for Applications that are on the intersection of MacOS/Windows
-  Software and AI
-- Gain experience towards edge computing cases, e.g. can this run on a car or
-  factory robot?
-- Demonstrate capability to run privacy-first OSS models on own data
+- **Local first**! This should be easily installable and runnable on a laptop. I
+  have a Mac so that's my primary target. We'll see about windows afterwards.
+- **Evaluate Rust** for Applications that are on the intersection of
+  MacOS/Windows Software and AI.
+- Gain **experience** towards edge computing cases, e.g. can this run on a car
+  or factory robot?
+- **Demonstrate** capability to run privacy-first OSS models on own data
 
 ## Non-Goals
 
@@ -29,10 +42,10 @@ A all-OSS, all-local, easy-install, privacy-first local RAG application, e.g.
 
 # Value Proposition
 
-- Inspire customers to think about their own use cases that would require such a
-  local / onpremises approach
-- Demonstrate our capabilitites
-- Make a few steps towards application development
+- **Inspire** customers to think about their own use cases that would require
+  such a local / on-premises approach
+- **Demonstrate** our capabilities
+- Steps towards **application development**
 
 ---
 
@@ -113,6 +126,7 @@ Pinecone, and Qdrant are not an option.
 ## Tauri
 
 - Like Electron but more native and less heavy tbd
+- UI in JavaScript
 
 ## egui
 
@@ -131,3 +145,17 @@ tbd
 - [ ] Switch from Ollama to Llamafile?
 - [ ] Build CLI chatbot
 - [ ] Build UI
+
+---
+
+# What's planned?
+
+- Start writing Blog Article
+- Start preparing Webinar
+- Finish Demonstrator (see Milestones)
+
+---
+
+# How did you create this amazing presentation in such short time?
+
+- Glad you asked: [sli.dev](https://sli.dev)
