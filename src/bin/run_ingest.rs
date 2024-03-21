@@ -1,9 +1,6 @@
 use anyhow::{anyhow, Context, Result};
-use arrow_array::{RecordBatch, RecordBatchIterator};
-use arrow_schema::{DataType, Field, Schema};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
-use lancedb::{connection::Connection, Table};
 use rag_rs::consts::{DOCUMENTS_PATH, MAX_TOKENS};
 use rag_rs::embed::{init_model, init_splitter};
 use rag_rs::utils::ensure_dir;
@@ -14,7 +11,6 @@ use tracing::{info, info_span};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // TODO: ? Add more context to the DB? E.g. which page of the book.
-const EMBEDDINGSIZE: i32 = 1024;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -52,25 +48,6 @@ async fn main() -> Result<()> {
     }
     info!("Finished inserting embeddings");
     Ok(())
-}
-
-async fn create_empty_table(db: &Connection) -> Result<Table> {
-    let schema = Arc::new(Schema::new(vec![
-        Field::new("id", DataType::Int32, false),
-        Field::new("text", DataType::Utf8, true),
-        Field::new(
-            "vector",
-            DataType::FixedSizeList(
-                Arc::new(Field::new("item", DataType::Float32, true)),
-                EMBEDDINGSIZE,
-            ),
-            true,
-        ),
-    ]));
-    db.create_empty_table("empty_table", schema)
-        .execute()
-        .await
-        .map_err(|e| anyhow!("{e:#?}"))
 }
 pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
     FlagEmbedding::list_supported_models()

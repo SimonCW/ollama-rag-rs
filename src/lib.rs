@@ -3,6 +3,7 @@
 #![allow(clippy::missing_errors_doc)]
 
 pub mod embed;
+pub mod embeddingsdb;
 
 pub mod consts {
     use fastembed::EmbeddingModel;
@@ -11,6 +12,7 @@ pub mod consts {
     pub const TOKENIZER_MODEL: &str = "bert-base-cased";
     pub const MAX_TOKENS: usize = 1000;
     pub const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
+    pub const EMBEDDINGSIZE: i32 = 1024;
 
     pub const MODEL: &str = "mistral";
     pub const SYSTEM_CLOWN: &str = r#"
