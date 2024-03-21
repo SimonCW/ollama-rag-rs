@@ -8,21 +8,28 @@ const TABLE_NAME: &str = "EmbeddingsTable";
 const EMBEDDINGSIZE: i32 = 1024;
 const URI: &str = ".data/embeddingsdb";
 
-pub struct EmbeddingsDB {
-    // TODO: Remove uri and schema?
+pub struct Client {
     pub uri: String,
     pub conn: Connection,
-    pub table: Table,
-    pub schema: Arc<Schema>,
 }
 
-pub struct EmbeddingsDBConfig {
+pub struct Config {
     pub uri: String,
     pub table_name: String,
     pub schema: Arc<Schema>,
 }
 
-impl Default for EmbeddingsDBConfig {
+impl Config {
+    pub fn new(uri: String, table_name: String, schema: Arc<Schema>) -> Self {
+        Config {
+            uri,
+            table_name,
+            schema,
+        }
+    }
+}
+
+impl Default for Config {
     fn default() -> Self {
         let schema = Arc::new(Schema::new(vec![
             Field::new("id", DataType::Int32, false),
@@ -36,7 +43,7 @@ impl Default for EmbeddingsDBConfig {
                 true,
             ),
         ]));
-        EmbeddingsDBConfig {
+        Config {
             uri: URI.to_string(),
             table_name: TABLE_NAME.to_string(),
             schema,
@@ -44,22 +51,15 @@ impl Default for EmbeddingsDBConfig {
     }
 }
 
-impl EmbeddingsDB {
-    pub async fn new(
-        uri: String,
-        table_name: String,
-        schema: Arc<Schema>,
-    ) -> lancedb::Result<Self> {
+impl Client {
+    pub async fn new(uri: String) -> lancedb::Result<Self> {
         let conn = lancedb::connect(&uri).execute().await?;
-        let table = conn
-            .create_empty_table(table_name, schema.clone())
-            .execute()
-            .await?;
-        Ok(EmbeddingsDB {
-            uri,
-            conn,
-            table,
-            schema,
-        })
+        Ok(Client { uri, conn })
     }
+    // pub async fn create_table(&self, name: &str, schema: Arc<Schema>) -> lancedb::Result<> {
+    //     let table = conn
+    //         .create_empty_table(table_name, schema.clone())
+    //         .execute()
+    //         .await?;
+    // }
 }
