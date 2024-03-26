@@ -11,7 +11,7 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    // Setup
+    // Setup;
     dotenv().ok();
     let model = init_model()?;
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     println!("Query: {query} \n");
     let query_embedding = Vector::from(model.query_embed(query)?);
 
-    todo!("Refactor neighbor retrieval")
+    todo!("Refactor neighbor retrieval");
     let mut rows = sqlx::query("SELECT id, chunk FROM rippy ORDER BY embedding <-> $1 LIMIT 2")
         .bind(query_embedding)
         .fetch(&pool);

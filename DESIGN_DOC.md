@@ -26,21 +26,20 @@ tbd
 
 ### Goals
 
-- Showcase capability to build LLM-RAG application on custom data with local OSS
-  model (flexibility to change models)
 - Local first! This should be easily installable and runnable on a laptop. I
   have a Mac so that's my primary target. We'll see about windows afterwards
-- Showcase usefulness of Rust to reduce runtime errors and high performance (And
-  it's not that hard!)
-- Gain experience with a specific vector database
+- Evaluate Rust for Applications that are on the intersection of MacOS/Windows
+  Software and AI
+- Gain experience towards edge computing cases, e.g. can this run on a car or
+  factory robot?
+- Demonstrate capability to run privacy-first OSS models on own data
 
 ### Non-Goals
 
-- Fits-all use cases RAG application. Most RAG applications can be compared to
-  search / recommendation problems: they need some use-case-specific tuning and
-  logic
-- Show that RAG applications are more than just LLM on top of vector search. For
-  the problem domain additional filtering, search, ranking might be necessary
+- Production-ready software. Although, I'll explore some Rust libraries for
+  logging, testing, etc
+- Fits-all use cases RAG application. For each the problem domain additional
+  filtering, search, ranking might be necessary
   ([paper with nice graphic](https://arxiv.org/abs/2312.10997v1),
   [hn comments](https://news.ycombinator.com/item?id=39000241&utm_source=pocket_saves))
 
@@ -70,21 +69,22 @@ tbd
   documents from vector db, talks to Ollama LLM and returns assistant answer
   (LLM Output)
 
-## Alternative Solutions
-
-tbd
-
 ## Testability, Monitoring, and Alerting
-
-tbd
-
-## Cross-Team impact
 
 tbd
 
 ## Open Questions
 
+### Which LLM framework
+
+I started with Ollama but I think I'll switch to llamafile at some point
+(https://simonwillison.net/2023/Nov/29/llamafile/).
+
+Wins for llamafile: No server, no Go, single file
+
 ### Which use-case for the Demonstrator?
+
+tbd
 
 ### How to embed documents and prompt locally?
 
@@ -135,6 +135,13 @@ I'll go with `fastembed-rs` for now. See notes below.
   Ollama dependency and just use Candle or Burn
 
 ### Which Vector DB?
+
+### Update 2024-03-08
+
+LanceDB is the way to go for this project ... I think ;). No seriously, it looks
+like LanceDB is what I've been looking for. Basically the Sqlite of vector
+databases. Also, it's also written in Rust. The only drawback is that the Rust
+SDK is quite experimental yet (they focus on the Python and JS SDKs first).
 
 #### Update 2024-02-16
 

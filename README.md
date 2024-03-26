@@ -8,26 +8,10 @@ Start Ollama in the background and log outputs.
 nohup ollama serve > ~/Repos/rag-rs/logs/ollama_serve.log 2>&1 &
 ```
 
-## Install Postgresql with Pgvector on MacOs
+## Install protobuf for LanceDB
 
 ```bash
-brew install postgresql
-brew install pgadmin4
-brew services start postgresql
-psql postgres
-```
-
-```sql
-CREATE ROLE username WITH LOGIN PASSWORD 'password';
-ALTER ROLE username CREATEDB;
-```
-
-```bash
-brew install pgvector
-```
-
-```bash
-brew services stop postgresql
+brew install protobuf
 ```
 
 ## License Notice
