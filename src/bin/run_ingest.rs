@@ -7,6 +7,7 @@ use arrow_array::{Array, ArrayRef, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
+use lancedb::{Connection, Table};
 use rag_rs::consts::{EMBEDDINGSIZE, MAX_TOKENS};
 use rag_rs::embed::{init_model, init_splitter};
 use rag_rs::embeddingsdb::{self, Client};
@@ -14,12 +15,12 @@ use rag_rs::utils::ensure_dir;
 use std::env;
 use std::sync::Arc;
 use std::{fs, path::Path};
-use tracing::{info, info_span};
+use tracing::{info, info_span, warn};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // TODO: ? Add more context to the DB? E.g. which page of the book.
 
-const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
+const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
 const TABLE_NAME: &str = "EmbeddingsTable";
 
 #[tokio::main]
@@ -37,10 +38,9 @@ async fn main() -> Result<()> {
     let model = init_model()?;
 
     // Init LanceDB
-    let default_conf = embeddingsdb::Config::default();
+    //let default_conf = embeddingsdb::Config::default();
     let db_uri = env::var("DATABASE_PATH").expect("Environment var DATABASE_PATH must be set");
     let conn = lancedb::connect(&db_uri).execute().await?;
-    //let tbl = conn.create_empty_table(default_conf.table_name, default_conf.schema);
 
     // Well ... this could be better ;)
     let content = fs::read_to_string(documents_path)?;
@@ -66,6 +66,7 @@ async fn main() -> Result<()> {
             true,
         ),
     ]));
+    let tbl = create_or_overwrite_table(&conn, TABLE_NAME, schema.clone()).await?;
     // Convert data to RecordBatch stream.
     let batches = RecordBatchIterator::new(
         vec![RecordBatch::try_new(
@@ -89,12 +90,59 @@ async fn main() -> Result<()> {
         schema.clone(),
     );
     // Create Table
-    conn.create_table(TABLE_NAME, Box::new(batches))
-        .execute()
-        .await
-        .context("Creating Table failed")?;
+    tbl.add(batches).execute().await?;
     info!("Finished inserting embeddings");
+
     Ok(())
+}
+
+async fn create_or_overwrite_table(
+    conn: &Connection,
+    name: &str,
+    schema: Arc<Schema>,
+) -> Result<Table> {
+    let res = conn.open_table(name).execute().await;
+    let table = match res {
+        Ok(_) => {
+            warn!("Dropping existing table {name}.");
+            conn.drop_table(name)
+                .await
+                .context("Failed to drop table {name}")?;
+            conn.create_empty_table(name, schema)
+                .execute()
+                .await
+                .context("Failed to create empty table {name}")?
+        }
+        Err(_) => {
+            info!("Creating empty table {name}.");
+            conn.create_empty_table(name, schema)
+                .execute()
+                .await
+                .context("Failed to create empty table {name}")?
+        }
+    };
+    Ok(table)
+}
+async fn create_table_if_not_exists(
+    conn: &Connection,
+    name: &str,
+    schema: Arc<Schema>,
+) -> Result<Table> {
+    let res = conn.open_table(name).execute().await;
+    let table = match res {
+        Ok(tbl) => {
+            info!("Table {name} already exists.");
+            tbl
+        }
+        Err(_) => {
+            info!("Creating empty table {name}.");
+            conn.create_empty_table(name, schema)
+                .execute()
+                .await
+                .context("Failed to create empty table {name}")?
+        }
+    };
+    Ok(table)
 }
 
 pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
