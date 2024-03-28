@@ -3,7 +3,7 @@
 #![allow(clippy::missing_errors_doc)]
 
 pub mod embed;
-pub mod embeddingsdb;
+//pub mod embeddingsdb;
 
 pub mod consts {
     use fastembed::EmbeddingModel;

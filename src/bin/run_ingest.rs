@@ -3,14 +3,13 @@ use arrow_array::{
     types::Float32Type, types::Int32Type, FixedSizeListArray, Int32Array, RecordBatch,
     RecordBatchIterator,
 };
-use arrow_array::{Array, ArrayRef, StringArray};
+use arrow_array::{ArrayRef, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
 use lancedb::{Connection, Table};
 use rag_rs::consts::{EMBEDDINGSIZE, MAX_TOKENS};
 use rag_rs::embed::{init_model, init_splitter};
-use rag_rs::embeddingsdb::{self, Client};
 use rag_rs::utils::ensure_dir;
 use std::env;
 use std::sync::Arc;
@@ -92,7 +91,6 @@ async fn main() -> Result<()> {
     // Create Table
     tbl.add(batches).execute().await?;
     info!("Finished inserting embeddings");
-
     Ok(())
 }
 
