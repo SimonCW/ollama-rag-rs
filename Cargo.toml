@@ -23,7 +23,7 @@ text-splitter = { version = "0.6", features = ["tokenizers"] }
 dotenv = "0.15.0"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-lancedb = "0.4.12"
+lancedb = "0.4.14"
 arrow-array = "50.0"
 arrow-schema = "50.0"
 
