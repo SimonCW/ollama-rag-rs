@@ -149,3 +149,30 @@ pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
         .find(|info| info.model == model)
         .map(|info| info.dim)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::create_or_overwrite_table;
+    use std::fs;
+    use std::path::Path;
+
+    const DB_URI: &str = ".test_data/test_db";
+    const TABLE_NAME: &str = "test_table";
+
+    #[tokio::test]
+    async fn should_create_table_if_not_exists() {
+        let _ = fs::remove_dir_all(DB_URI);
+        let schema = Arc::new(Schema::new(vec![
+            Field::new("id", DataType::Int32, false),
+            Field::new("item", DataType::Utf8, true),
+        ]));
+        let conn = lancedb::connect(DB_URI).execute().await.unwrap();
+        let _ = create_or_overwrite_table(&conn, TABLE_NAME, schema)
+            .await
+            .unwrap();
+        let db_path = Path::new(DB_URI);
+        assert!(db_path.exists());
+        let _ = fs::remove_dir_all(DB_URI);
+    }
+}
