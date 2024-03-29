@@ -1,12 +1,10 @@
 use anyhow::{Context, Result};
 use dotenv::dotenv;
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding, InitOptions};
+use fastembed::EmbeddingBase;
 use futures::TryStreamExt;
 use lancedb::query::ExecutableQuery;
-use rag_rs::{consts::EMBEDDING_MODEL, embed::init_model};
+use rag_rs::embed::init_model;
 use std::env;
-use tracing::{info, info_span};
-use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 const TABLE_NAME: &str = "EmbeddingsTable";
 
@@ -31,7 +29,6 @@ async fn main() -> Result<()> {
         .await?
         .try_collect::<Vec<_>>()
         .await?;
-    println!("{:#?}", nearest_neighbors);
 
     todo!("Create prompt");
     todo!("Chat with the user");

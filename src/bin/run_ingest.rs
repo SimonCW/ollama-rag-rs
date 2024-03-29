@@ -1,7 +1,6 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use arrow_array::{
-    types::Float32Type, types::Int32Type, FixedSizeListArray, Int32Array, RecordBatch,
-    RecordBatchIterator,
+    types::Float32Type, FixedSizeListArray, Int32Array, RecordBatch, RecordBatchIterator,
 };
 use arrow_array::{ArrayRef, StringArray};
 use arrow_schema::{DataType, Field, Schema};
