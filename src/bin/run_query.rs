@@ -30,12 +30,8 @@ async fn main() -> Result<()> {
         .try_collect::<Vec<_>>()
         .await?;
 
-    todo!("Create prompt");
-    todo!("Chat with the user");
-}
-
-#[derive(Debug)]
-struct NearestNeighbors {
-    id: i64,
-    chunk: String,
+    //todo: how to iterate through the record batch?
+    //todo: Create prompt
+    //todo: Chat with the user
+    Ok(())
 }
