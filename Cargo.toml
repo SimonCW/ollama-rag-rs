@@ -8,6 +8,19 @@ edition = "2021"
 [lints.rust]
 unsafe_code = "forbid"
 
+[lints.clippy]
+correctness = "deny"
+suspicious = "deny"
+complexity = "warn"
+perf = "warn"
+style = "warn"
+pedantic = "warn"
+
+missing_errors_doc = "allow"
+missing-panics-doc = "allow"
+must-use-candidate = "allow"
+
+
 [dependencies]
 # I created a PR to text-splitter that will make the direct declaration of tokenizers unecessary
 tokenizers = { version = "0.15", features = ["http"] }

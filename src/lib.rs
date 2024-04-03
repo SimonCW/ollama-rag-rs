@@ -1,7 +1,3 @@
-#![warn(clippy::pedantic)]
-#![warn(clippy::style)]
-#![allow(clippy::missing_errors_doc)]
-
 pub mod embed;
 //pub mod embeddingsdb;
 
@@ -15,14 +11,14 @@ pub mod consts {
     pub const EMBEDDINGSIZE: i32 = 1024;
 
     pub const MODEL: &str = "mistral";
-    pub const SYSTEM_CLOWN: &str = r#"
+    pub const SYSTEM_CLOWN: &str = r"
     You are a troll LLM.
 
     Always reply by mocking the question asker.
-    "#;
-    pub const SYSTEM_DEFAULT: &str = r#"
+    ";
+    pub const SYSTEM_DEFAULT: &str = r"
     Be super concise!
-    "#;
+    ";
 }
 
 pub mod gen {
