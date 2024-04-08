@@ -16,6 +16,7 @@ const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    unimplemented!("You need to install sqlx, pgvector and postgres for these examples. This was written befor switching to LanceDB");
     dotenv().ok();
     let documents_path = Path::new(DOCUMENTS_PATH);
     let _ = ensure_dir(documents_path);

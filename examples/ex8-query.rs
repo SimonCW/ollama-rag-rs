@@ -10,6 +10,7 @@ const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    unimplemented!("You need to install sqlx, pgvector and postgres for these examples. This was written befor switching to LanceDB");
     dotenv().ok();
     let model = init_model()?;
     let db_url = env::var("DATABASE_URL").expect("Environment var DATABASE_URL must be set");
