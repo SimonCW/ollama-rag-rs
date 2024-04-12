@@ -7,8 +7,8 @@ pub mod consts {
     pub const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
     pub const TOKENIZER_MODEL: &str = "bert-base-cased";
     pub const MAX_TOKENS: usize = 1000;
-    pub const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MLE5Large;
-    pub const EMBEDDINGSIZE: i32 = 1024;
+    pub const EMBEDDING_MODEL: EmbeddingModel = EmbeddingModel::MultilingualE5Small;
+    pub const EMBEDDINGSIZE: i32 = 384;
 
     pub const MODEL: &str = "mistral";
     pub const SYSTEM_CLOWN: &str = r"

@@ -5,7 +5,7 @@ use arrow_array::{
 use arrow_array::{ArrayRef, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use dotenv::dotenv;
-use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
+use fastembed::{EmbeddingModel, TextEmbedding};
 use lancedb::connection::CreateTableMode;
 use lancedb::{Connection, Table};
 use rag_rs::consts::{EMBEDDINGSIZE, MAX_TOKENS};
@@ -14,12 +14,12 @@ use rag_rs::utils::ensure_dir;
 use std::env;
 use std::sync::Arc;
 use std::{fs, path::Path};
-use tracing::{info, info_span, warn};
+use tracing::{info, info_span};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // TODO: ? Add more context to the DB? E.g. which page of the book.
 
-const DOCUMENTS_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
+const DOCUMENT_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
 const TABLE_NAME: &str = "EmbeddingsTable";
 
 #[tokio::main]
@@ -31,8 +31,8 @@ async fn main() -> Result<()> {
         .init();
     let span = info_span!("Main execution");
     let _enter = span.enter();
-    let documents_path = Path::new(DOCUMENTS_PATH);
-    let _ = ensure_dir(documents_path);
+    let document_path = Path::new(DOCUMENT_PATH);
+    let _ = ensure_dir(document_path);
     let splitter = init_splitter()?;
     let model = init_model()?;
 
@@ -42,14 +42,18 @@ async fn main() -> Result<()> {
     let conn = lancedb::connect(&db_uri).execute().await?;
 
     // Well ... this could be better ;)
-    let content = fs::read_to_string(documents_path)?;
-    let chunks: Vec<_> = splitter.chunks(&content, MAX_TOKENS).collect();
+    let content = fs::read_to_string(document_path).context("Failed to read documents")?;
+    let chunks: Vec<_> = splitter
+        .chunks(&content, MAX_TOKENS)
+        .map(|text| format!("passage: {text}"))
+        .collect();
     // Not happy with the clone. How expensive is a clone of a Vec<&str>?
     info!("Creating embeddings");
-    let embeddings = model.passage_embed(chunks.clone(), None)?;
+    let embeddings = model.embed(chunks.clone(), None)?;
     assert_eq!(embeddings.len(), chunks.len());
-    assert_eq!(embeddings[0].len() as i32, EMBEDDINGSIZE);
-    let n_items = chunks.len();
+    assert_eq!(i32::try_from(embeddings[0].len()).unwrap(), EMBEDDINGSIZE);
+    let n_items = i32::try_from(chunks.len())
+        .expect("I don't expect number of vectors to be bigger than {i32::MAX}");
     info!("Inserting embeddings");
 
     // Create Schema
@@ -71,7 +75,7 @@ async fn main() -> Result<()> {
         vec![RecordBatch::try_new(
             schema.clone(),
             vec![
-                Arc::new(Int32Array::from_iter_values(1..=n_items as i32)),
+                Arc::new(Int32Array::from_iter_values(1..=n_items)),
                 Arc::new(Arc::new(StringArray::from(chunks)) as ArrayRef),
                 Arc::new(
                     FixedSizeListArray::from_iter_primitive::<Float32Type, _, _>(
@@ -110,7 +114,7 @@ async fn create_or_overwrite_table(
 }
 
 pub fn get_embedding_size(model: EmbeddingModel) -> Option<usize> {
-    FlagEmbedding::list_supported_models()
+    TextEmbedding::list_supported_models()
         .iter()
         .find(|info| info.model == model)
         .map(|info| info.dim)
