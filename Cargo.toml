@@ -39,6 +39,7 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 lancedb = "0.4.14"
 arrow-array = "50.0"
 arrow-schema = "50.0"
+async-openai = "0.20.0"
 
 [[bin]]
 name = "run_ingest"
