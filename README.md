@@ -1,4 +1,6 @@
-# Retrieval Augmented Generation with Ollama in Rust
+# Retrieval Augmented Generation with Llamafile, LanceDB in Rust
+
+Note, this is WIP. I try to avoid building abstractions too early.
 
 ## Useful Commands
 
