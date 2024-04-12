@@ -6,6 +6,7 @@ use arrow_array::{ArrayRef, StringArray};
 use arrow_schema::{DataType, Field, Schema};
 use dotenv::dotenv;
 use fastembed::{EmbeddingBase, EmbeddingModel, FlagEmbedding};
+use lancedb::connection::CreateTableMode;
 use lancedb::{Connection, Table};
 use rag_rs::consts::{EMBEDDINGSIZE, MAX_TOKENS};
 use rag_rs::embed::{init_model, init_splitter};
@@ -98,47 +99,13 @@ async fn create_or_overwrite_table(
     name: &str,
     schema: Arc<Schema>,
 ) -> Result<Table> {
-    let res = conn.open_table(name).execute().await;
-    let table = match res {
-        Ok(_) => {
-            warn!("Dropping existing table {name}.");
-            conn.drop_table(name)
-                .await
-                .context("Failed to drop table {name}")?;
-            conn.create_empty_table(name, schema)
-                .execute()
-                .await
-                .context("Failed to create empty table {name}")?
-        }
-        Err(_) => {
-            info!("Creating empty table {name}.");
-            conn.create_empty_table(name, schema)
-                .execute()
-                .await
-                .context("Failed to create empty table {name}")?
-        }
-    };
-    Ok(table)
-}
-async fn create_table_if_not_exists(
-    conn: &Connection,
-    name: &str,
-    schema: Arc<Schema>,
-) -> Result<Table> {
-    let res = conn.open_table(name).execute().await;
-    let table = match res {
-        Ok(tbl) => {
-            info!("Table {name} already exists.");
-            tbl
-        }
-        Err(_) => {
-            info!("Creating empty table {name}.");
-            conn.create_empty_table(name, schema)
-                .execute()
-                .await
-                .context("Failed to create empty table {name}")?
-        }
-    };
+    info!("Creating empty table {name}.");
+    let table = conn
+        .create_empty_table(name, schema)
+        .mode(CreateTableMode::Overwrite)
+        .execute()
+        .await
+        .context("Failed to create empty table {name}")?;
     Ok(table)
 }
 
