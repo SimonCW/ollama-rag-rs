@@ -19,7 +19,7 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // TODO: ? Add more context to the DB? E.g. which page of the book.
 
-const DOCUMENT_PATH: &str = "./knowledge/2024-02-13_the_rust_book_short.txt";
+const DOCUMENT_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
 const TABLE_NAME: &str = "EmbeddingsTable";
 
 #[tokio::main]
