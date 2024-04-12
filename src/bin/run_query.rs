@@ -9,7 +9,6 @@ use async_openai::{
     Client,
 };
 use dotenv::dotenv;
-use fastembed::EmbeddingBase;
 use futures::TryStreamExt;
 use lancedb::query::ExecutableQuery;
 use rag_rs::embed::init_model;
@@ -33,10 +32,13 @@ async fn main() -> Result<()> {
     let client = Client::with_config(local_conf);
 
     // Query
-    let query = "What's the 'interior mutability' about and how to achieve it?";
+    let query = "query: What's the 'interior mutability' about and how to achieve it?";
     println!("Query: {query} \n");
     // Retrieve neighbors
-    let query_embedding = model.query_embed(query)?;
+    let query_embedding = model
+        .embed(vec![query], None)?
+        .pop()
+        .expect("Outer Vec will contain one inner vec");
     let nearest_neighbors = tbl
         .query()
         .nearest_to(query_embedding)
@@ -56,25 +58,26 @@ async fn main() -> Result<()> {
         .unwrap()
         .as_any()
         .downcast_ref::<StringArray>()
-        .unwrap();
-    println!("___________");
-    println!("{:#?}", nn_chunks);
+        .unwrap()
+        .iter()
+        .flatten()
+        .collect::<Vec<&str>>();
+
+    let context = nn_chunks[..2].join("\n<--->\n");
 
     // Chat
     let system = ChatCompletionRequestSystemMessageArgs::default()
-                .content("Use the provided CONTEXT to answer questions. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
+                .content("Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with <--->. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
                 .build()?;
-    let context = "hello";
     let user_msg = ChatCompletionRequestUserMessageArgs::default()
         .content(format!(
             "Use the provided CONTEXT to answer the QUESTION. 
-            QUESTION: {query}
+            QUESTION: {query}\n\n
             CONTEXT: {context}"
         ))
         .build()?;
 
     let request = CreateChatCompletionRequestArgs::default()
-        .max_tokens(512u16)
         .messages([system.into(), user_msg.into()])
         .build()
         .context("Failed to build ChatCompletionRequest")?;
