@@ -32,48 +32,56 @@ async fn main() -> Result<()> {
         .with_api_base("http://localhost:8080/v1");
     let client = Client::with_config(local_conf);
 
-    // Query
-    let query = "query: What's the 'interior mutability' about and how to achieve it?";
-    println!("{query} \n");
-    // Retrieve neighbors
-    let nn_chunks = get_nearest_neighbor_chunks(query, &model, &tbl).await?;
-    let context = nn_chunks[..2].join("\n<--->\n");
-
     // Chat
     let system = ChatCompletionRequestSystemMessageArgs::default()
                 .content("Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with <--->. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
                 .build()?;
-    let user_msg = ChatCompletionRequestUserMessageArgs::default()
-        .content(format!(
-            "Use the provided CONTEXT to answer the QUESTION. 
+
+    // TODO: This vec needs another type. The same one as the `.messages()` method
+    let mut msg_thread: Vec<String> = vec![system];
+
+    loop {
+        // Read user message from stdin
+        println!(">> Awaiting your message");
+        let mut user_msg = String::new();
+        let _ = stdin().read_line(&mut user_msg);
+
+        // Retrieve neighbors
+        let nn_chunks = get_nearest_neighbor_chunks(query, &model, &tbl).await?;
+        let context = nn_chunks[..2].join("\n<--->\n");
+
+        let user_msg = ChatCompletionRequestUserMessageArgs::default()
+            .content(format!(
+                "Use the provided CONTEXT to answer the QUESTION. 
             QUESTION: {query}\n\n
             CONTEXT: {context}"
-        ))
-        .build()?;
+            ))
+            .build()?;
 
-    let request = CreateChatCompletionRequestArgs::default()
-        .n(1)
-        .messages([system.into(), user_msg.into()])
-        .build()
-        .context("Failed to build ChatCompletionRequest")?;
-    println!("{}", serde_json::to_string(&request).unwrap());
+        msg_thread.push(user_msg)
 
-    let response = client
-        .chat()
-        .create(request)
-        .await
-        .context("Failed to create CompletionResponse")?;
-    println!("\nResponse:\n");
-    let response_text = response
-        .choices
-        .first()
-        .unwrap()
-        .message
-        .content
-        .as_ref()
-        .unwrap();
-    print!("{response_text}");
+        let request = CreateChatCompletionRequestArgs::default()
+            .n(1)
+            .messages(msg_thread)
+            .build()
+            .context("Failed to build ChatCompletionRequest")?;
 
+        let response = client
+            .chat()
+            .create(request)
+            .await
+            .context("Failed to create CompletionResponse")?;
+        println!("\nResponse:\n");
+        let response_text = response
+            .choices
+            .first()
+            .unwrap()
+            .message
+            .content
+            .as_ref()
+            .unwrap();
+        print!("{response_text}");
+    }
     //TODO: Chat with the user
     Ok(())
 }
