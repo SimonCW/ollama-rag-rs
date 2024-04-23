@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
 
     // Query
     let query = "query: What's the 'interior mutability' about and how to achieve it?";
-    println!("Query: {query} \n");
+    println!("{query} \n");
     // Retrieve neighbors
     let query_embedding = model
         .embed(vec![query], None)?
@@ -78,6 +78,7 @@ async fn main() -> Result<()> {
         .build()?;
 
     let request = CreateChatCompletionRequestArgs::default()
+        .n(1)
         .messages([system.into(), user_msg.into()])
         .build()
         .context("Failed to build ChatCompletionRequest")?;
@@ -91,14 +92,17 @@ async fn main() -> Result<()> {
         .context("Failed to create CompletionResponse")?;
 
     println!("\nResponse:\n");
-    for choice in response.choices {
-        println!(
-            "{}: Role: {}  Content: {:?}",
-            choice.index, choice.message.role, choice.message.content
-        );
-    }
 
-    //TODO: Create prompt
+    let response_text = response
+        .choices
+        .first()
+        .unwrap()
+        .message
+        .content
+        .as_ref()
+        .unwrap();
+    print!("{response_text}");
+
     //TODO: Chat with the user
     Ok(())
 }
