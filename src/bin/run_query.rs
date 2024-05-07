@@ -14,12 +14,21 @@ use futures::TryStreamExt;
 use lancedb::{query::ExecutableQuery, Table};
 use rag_rs::embed::init_model;
 use std::{env, io::stdin};
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 const TABLE_NAME: &str = "EmbeddingsTable";
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Setup
+    std::env::set_var("RUST_LOG", "ERROR");
+
+    // Setup tracing subscriber so that library can log the errors
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
+        .init();
+
     dotenv().ok();
     let model = init_model()?;
 
@@ -33,8 +42,14 @@ async fn main() -> Result<()> {
     let client = Client::with_config(local_conf);
 
     // Create a thread for the conversation
-    let thread_request = CreateThreadRequestArgs::default().build()?;
-    let thread = client.threads().create(thread_request.clone()).await?;
+    let thread_request = CreateThreadRequestArgs::default()
+        .build()
+        .context("Failed to create thread request")?;
+    let thread = client
+        .threads()
+        .create(thread_request.clone())
+        .await
+        .context("Failed to create thread")?;
 
     let assistant_name = "Ferry";
     let instructions= "You are a knowledgable Rust developer that mentors and helps Rust learners. Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with triple backticks. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'";
