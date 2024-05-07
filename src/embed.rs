@@ -1,4 +1,4 @@
-use std::path::Path;
+
 
 use crate::consts::{EMBEDDING_MODEL, TOKENIZER_MODEL};
 use anyhow::{anyhow, Context, Result};
