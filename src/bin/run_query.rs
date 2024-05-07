@@ -43,8 +43,13 @@ async fn main() -> Result<()> {
     let assistant_request = CreateAssistantRequestArgs::default()
         .name(assistant_name)
         .instructions(instructions)
-        .build()?;
-    let assistant = client.assistants().create(assistant_request).await?;
+        .build()
+        .context("Failed to create assistant request.")?;
+    let assistant = client
+        .assistants()
+        .create(assistant_request)
+        .await
+        .context("Failed to create assistant")?;
     //get the id of the assistant
     let assistant_id = &assistant.id;
 
@@ -73,24 +78,28 @@ async fn main() -> Result<()> {
         let message = CreateMessageRequestArgs::default()
             .role(MessageRole::User)
             .content(input.clone())
-            .build()?;
+            .build()
+            .context("Failed to create message request")?;
 
         //attach message to the thread
         let _message_obj = client
             .threads()
             .messages(&thread.id)
             .create(message)
-            .await?;
+            .await
+            .context("Failed to attach message to thread")?;
 
         //create a run for the thread
         let run_request = CreateRunRequestArgs::default()
             .assistant_id(assistant_id)
-            .build()?;
+            .build()
+            .context("Failed to crate run request")?;
         let run = client
             .threads()
             .runs(&thread.id)
             .create(run_request)
-            .await?;
+            .await
+            .context("Failed to create run")?;
         //wait for the run to complete
         let mut awaiting_response = true;
         while awaiting_response {
@@ -99,6 +108,7 @@ async fn main() -> Result<()> {
             //check the status of the run
             match run.status {
                 RunStatus::Completed => {
+                    println!("--- Run Completed");
                     awaiting_response = false;
                     // once the run is completed we
                     // get the response from the run
@@ -108,7 +118,7 @@ async fn main() -> Result<()> {
                     //retrieve the response from the run
                     let response = client.threads().messages(&thread.id).list(&input).await?;
                     //get the message id from the response
-                    let message_id = response.data.get(0).unwrap().id.clone();
+                    let message_id = response.data.first().unwrap().id.clone();
                     //get the message from the response
                     let message = client
                         .threads()
@@ -116,7 +126,7 @@ async fn main() -> Result<()> {
                         .retrieve(&message_id)
                         .await?;
                     //get the content from the message
-                    let content = message.content.get(0).unwrap();
+                    let content = message.content.first().unwrap();
                     //get the text from the content
                     let text = match content {
                         MessageContent::Text(text) => text.text.value.clone(),
