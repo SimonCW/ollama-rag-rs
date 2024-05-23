@@ -3,9 +3,8 @@ use arrow_array::StringArray;
 use async_openai::{
     config::OpenAIConfig,
     types::{
-        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
-        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-        CreateChatCompletionRequestArgs,
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestSystemMessageArgs,
+        ChatCompletionRequestUserMessageArgs, CreateChatCompletionRequestArgs,
     },
     Client,
 };
@@ -15,10 +14,12 @@ use futures::TryStreamExt;
 use lancedb::{query::ExecutableQuery, Table};
 use rag_rs::embed::init_model;
 use std::{env, io::stdin};
+use tracing::debug;
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 const TABLE_NAME: &str = "EmbeddingsTable";
 
+// TODO: Fix by moving to chat/completions endpoint. I changed this to use the assitants endpoint via async_openai but that isn't supported by llamafile.
 #[tokio::main]
 async fn main() -> Result<()> {
     // Setup
@@ -42,22 +43,11 @@ async fn main() -> Result<()> {
         .with_api_base("http://localhost:8080/v1");
     let client = Client::with_config(local_conf);
 
-    // Create a thread for the conversation
-    let thread_request = CreateThreadRequestArgs::default()
-        .build()
-        .context("Failed to create thread request")?;
-    let thread = client
-        .threads()
-        .create(thread_request.clone())
-        .await
-        .context("Failed to create thread")?;
-
-    // Chat
     let system = ChatCompletionRequestSystemMessageArgs::default()
-                .content("Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with <--->. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
+                .content("Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimited with triple ~, i.e. `~~~`. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
                 .build()?;
 
-    let mut msg_thread: Vec<ChatCompletionRequestMessage> = vec![system.into()];
+    let mut msg_thread: Vec<_> = vec![system.into()];
 
     loop {
         // Read user message from stdin
@@ -67,12 +57,11 @@ async fn main() -> Result<()> {
 
         // Retrieve neighbors
         let nn_chunks = get_nearest_neighbor_chunks(&query, &model, &tbl).await?;
-        let context = nn_chunks[..2].join("\n<--->\n");
+        let context = format!("```{}```", nn_chunks[..2].join("```"));
 
         let user_msg = ChatCompletionRequestUserMessageArgs::default()
             .content(format!(
-                "Use the provided CONTEXT to answer the QUESTION. 
-            QUESTION: {query}\n\n
+                "QUESTION: {query}\n
             CONTEXT: {context}"
             ))
             .build()?;
@@ -85,21 +74,31 @@ async fn main() -> Result<()> {
             .build()
             .context("Failed to build ChatCompletionRequest")?;
 
-        let response = client
+        debug!("{}", serde_json::to_string(&request).unwrap());
+        let response = &client
             .chat()
             .create(request)
             .await
-            .context("Failed to create CompletionResponse")?
+            .context("Failed to create CompletionResponse")?;
+
+        println!("\nResponse:\n");
+        let response_text = response
             .choices
             .first()
+            .as_ref()
             .unwrap()
-            .message;
-        msg_thread.push(response.into());
-        println!("\nResponse:\n");
-        let response_text = response.content.as_ref().unwrap();
+            .message
+            .content
+            .as_ref()
+            .unwrap()
+            .clone();
         print!("{response_text}");
+        print!("\n\n");
+        let assistant_response = ChatCompletionRequestAssistantMessageArgs::default()
+            .content(response_text)
+            .build()?;
+        msg_thread.push(assistant_response.into());
     }
-    Ok(())
 }
 
 async fn get_nearest_neighbor_chunks(

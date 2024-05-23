@@ -18,7 +18,6 @@ use tracing::{info, info_span};
 use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 // TODO: ? Add more context to the DB? E.g. which page of the book.
-// TODO: Fix by moving to chat/completions endpoint. I changed this to use the assitants endpoint via async_openai but that isn't supported by llamafile.
 
 const DOCUMENT_PATH: &str = "./knowledge/2024-02-13_the_rust_book.txt";
 const TABLE_NAME: &str = "EmbeddingsTable";
