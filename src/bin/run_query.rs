@@ -3,8 +3,9 @@ use arrow_array::StringArray;
 use async_openai::{
     config::OpenAIConfig,
     types::{
-        CreateAssistantRequestArgs, CreateMessageRequestArgs, CreateRunRequestArgs,
-        CreateThreadRequestArgs, MessageContent, MessageRole, RunStatus,
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
+        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
+        CreateChatCompletionRequestArgs,
     },
     Client,
 };
@@ -51,138 +52,53 @@ async fn main() -> Result<()> {
         .await
         .context("Failed to create thread")?;
 
-    let assistant_name = "Ferry";
-    let instructions= "You are a knowledgable Rust developer that mentors and helps Rust learners. Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with triple backticks. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'";
+    // Chat
+    let system = ChatCompletionRequestSystemMessageArgs::default()
+                .content("Use the provided CONTEXT to answer questions. Documents in the CONTEXT are delimted with <--->. If the answer cannot be found in the CONTEXT, write 'I could not find an answer.'")
+                .build()?;
 
-    //create the assistant
-    let assistant_request = CreateAssistantRequestArgs::default()
-        .name(assistant_name)
-        .instructions(instructions)
-        .build()
-        .context("Failed to create assistant request.")?;
-    let assistant = client
-        .assistants()
-        .create(assistant_request)
-        .await
-        .context("Failed to create assistant")?;
-    //get the id of the assistant
-    let assistant_id = &assistant.id;
+    let mut msg_thread: Vec<ChatCompletionRequestMessage> = vec![system.into()];
 
     loop {
         // Read user message from stdin
-        println!("--- How can I help you?");
-
-        let mut input = String::new();
-        let _ = stdin().read_line(&mut input);
-        //break out of the loop if the user enters exit()
-        //
-        if input.trim() == "exit()" {
-            break;
-        }
+        println!(">> Awaiting your message");
+        let mut query = String::new();
+        let _ = stdin().read_line(&mut query);
 
         // Retrieve neighbors
-        let nn_chunks = get_nearest_neighbor_chunks(&input, &model, &tbl).await?;
+        let nn_chunks = get_nearest_neighbor_chunks(&query, &model, &tbl).await?;
         let context = nn_chunks[..2].join("\n<--->\n");
 
-        let input = format!(
-            "Use the provided CONTEXT to answer the QUESTION. 
-            QUESTION: {input}\n\n
+        let user_msg = ChatCompletionRequestUserMessageArgs::default()
+            .content(format!(
+                "Use the provided CONTEXT to answer the QUESTION. 
+            QUESTION: {query}\n\n
             CONTEXT: {context}"
-        );
-        //create a message for the thread
-        let message = CreateMessageRequestArgs::default()
-            .role(MessageRole::User)
-            .content(input.clone())
+            ))
+            .build()?;
+
+        msg_thread.push(user_msg.into());
+
+        let request = CreateChatCompletionRequestArgs::default()
+            .n(1)
+            .messages(msg_thread.clone())
             .build()
-            .context("Failed to create message request")?;
+            .context("Failed to build ChatCompletionRequest")?;
 
-        //attach message to the thread
-        let _message_obj = client
-            .threads()
-            .messages(&thread.id)
-            .create(message)
+        let response = client
+            .chat()
+            .create(request)
             .await
-            .context("Failed to attach message to thread")?;
-
-        //create a run for the thread
-        let run_request = CreateRunRequestArgs::default()
-            .assistant_id(assistant_id)
-            .build()
-            .context("Failed to crate run request")?;
-        let run = client
-            .threads()
-            .runs(&thread.id)
-            .create(run_request)
-            .await
-            .context("Failed to create run")?;
-        //wait for the run to complete
-        let mut awaiting_response = true;
-        while awaiting_response {
-            //retrieve the run
-            let run = client.threads().runs(&thread.id).retrieve(&run.id).await?;
-            //check the status of the run
-            match run.status {
-                RunStatus::Completed => {
-                    println!("--- Run Completed");
-                    awaiting_response = false;
-                    // once the run is completed we
-                    // get the response from the run
-                    // which will be the first message
-                    // in the thread
-
-                    //retrieve the response from the run
-                    let response = client.threads().messages(&thread.id).list(&input).await?;
-                    //get the message id from the response
-                    let message_id = response.data.first().unwrap().id.clone();
-                    //get the message from the response
-                    let message = client
-                        .threads()
-                        .messages(&thread.id)
-                        .retrieve(&message_id)
-                        .await?;
-                    //get the content from the message
-                    let content = message.content.first().unwrap();
-                    //get the text from the content
-                    let text = match content {
-                        MessageContent::Text(text) => text.text.value.clone(),
-                        MessageContent::ImageFile(_) => {
-                            panic!("imaged are not supported in the terminal")
-                        }
-                    };
-                    //print the text
-                    println!("--- Response: {}", text);
-                    println!("");
-                }
-                RunStatus::Failed => {
-                    awaiting_response = false;
-                    println!("--- Run Failed: {:#?}", run);
-                }
-                RunStatus::Queued => {
-                    println!("--- Run Queued");
-                }
-                RunStatus::Cancelling => {
-                    println!("--- Run Cancelling");
-                }
-                RunStatus::Cancelled => {
-                    println!("--- Run Cancelled");
-                }
-                RunStatus::Expired => {
-                    println!("--- Run Expired");
-                }
-                RunStatus::RequiresAction => {
-                    println!("--- Run Requires Action");
-                }
-                RunStatus::InProgress => {
-                    println!("--- Waiting for response...");
-                }
-            }
-            //wait for 1 second before checking the status again
-            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-        }
+            .context("Failed to create CompletionResponse")?
+            .choices
+            .first()
+            .unwrap()
+            .message;
+        msg_thread.push(response.into());
+        println!("\nResponse:\n");
+        let response_text = response.content.as_ref().unwrap();
+        print!("{response_text}");
     }
-    //once we have broken from the main loop we can delete the assistant and thread
-    client.assistants().delete(assistant_id).await?;
-    client.threads().delete(&thread.id).await?;
     Ok(())
 }
 
