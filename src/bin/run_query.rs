@@ -14,16 +14,17 @@ use futures::TryStreamExt;
 use lancedb::{query::ExecutableQuery, Table};
 use rag_rs::embed::init_model;
 use std::{env, io::stdin};
-use tracing::debug;
+use tracing::{debug, info};
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 const TABLE_NAME: &str = "EmbeddingsTable";
 
-// TODO: Fix by moving to chat/completions endpoint. I changed this to use the assitants endpoint via async_openai but that isn't supported by llamafile.
+// TODO: Cannot answer "what was my last question correctly"
+// TODO: Write traces to file not stdout
 #[tokio::main]
 async fn main() -> Result<()> {
     // Setup
-    std::env::set_var("RUST_LOG", "ERROR");
+    std::env::set_var("RUST_LOG", "INFO");
 
     // Setup tracing subscriber so that library can log the errors
     tracing_subscriber::registry()
@@ -74,7 +75,7 @@ async fn main() -> Result<()> {
             .build()
             .context("Failed to build ChatCompletionRequest")?;
 
-        debug!("{}", serde_json::to_string(&request).unwrap());
+        info!("{}", serde_json::to_string(&request).unwrap());
         let response = &client
             .chat()
             .create(request)
